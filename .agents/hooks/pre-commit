@@ -1,0 +1,44 @@
+#!/bin/sh
+# Word deltas for prose docs and slop tells on added lines.
+# Warn-only.
+
+STAGED=$(git diff --cached --name-only --diff-filter=ACM)
+[ -z "$STAGED" ] && exit 0
+
+added_lines() { git diff --cached -U0 -- "$1" | grep '^+' | grep -v '^+++' | sed 's/^+//'; }
+
+report=""
+total=0
+for f in $STAGED; do
+    case "$f" in
+        *.md) ;;
+        *) continue ;;
+    esac
+    a=$(added_lines "$f" | wc -w | tr -d ' ')
+    r=$(git diff --cached -U0 -- "$f" | grep '^-' | grep -v '^---' | sed 's/^-//' | wc -w | tr -d ' ')
+    total=$((total + a))
+    report="${report}  ${f}: +${a} -${r} words\n"
+done
+
+if [ -n "$report" ]; then
+    echo "── doc words added this commit ──"
+    printf "%b" "$report"
+    echo "  total added: ${total}"
+fi
+
+TELLS='20[0-9][0-9]-[01][0-9]-[0-3][0-9]|as of|currently|previously|recently|at the time|we (decided|chose|verified|settled|agreed)|this session|going forward|so far|was verified|verified live|now supports|no longer'
+warned=0
+for f in $STAGED; do
+    case "$f" in
+        .agents/*) continue ;;
+        *.md) ;;
+        *) continue ;;
+    esac
+    matches=$(added_lines "$f" | grep -iE "$TELLS")
+    if [ -n "$matches" ]; then
+        [ $warned -eq 0 ] && echo "── slop tells in added lines (warn only) ──" && warned=1
+        echo "$matches" | sed "s|^|  ${f}: |"
+    fi
+done
+
+exit 0

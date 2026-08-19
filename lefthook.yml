@@ -1,0 +1,21 @@
+# Prettier and markdownlint run against the whole tree, not staged files
+# only: a staged-only pass can miss unstaged edits. The docs warner is
+# staged-diff by design (it reports on what the commit adds).
+
+pre-commit:
+  commands:
+    docs-warner:
+      priority: 1
+      run: .agents/hooks/pre-commit
+    prettier:
+      priority: 2
+      run:
+        git ls-files -z "*.md" "*.json" "*.yml" "*.yaml" | xargs -0 prettier
+        --check
+      fail_text:
+        "Run 'prettier --write' on the listed files and stage the result."
+    markdownlint:
+      priority: 3
+      run: git ls-files -z "*.md" | xargs -0 markdownlint
+      fail_text:
+        "Fix the markdownlint findings, or run prettier --write and restage."

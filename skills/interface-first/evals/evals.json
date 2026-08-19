@@ -1,0 +1,56 @@
+{
+  "skill_name": "interface-first",
+  "evals": [
+    {
+      "id": 0,
+      "name": "contract-phase",
+      "prompt": "Implement phase 1 of PLAN.md.",
+      "expected_output": "Defines the digest data model as types (entry, per-feed group, digest, and settings) rather than leaving them implicit",
+      "assertions": [
+        "Defines the digest data model as types (entry, per-feed group, digest, and settings) rather than leaving them implicit",
+        "Creates the module/file layout for the digest logic that phase 2 will fill in",
+        "Every function that will eventually hold logic raises a loud stub (NotImplementedError), never a silent default like return None/[]/\"\"",
+        "Implements no digest business logic: no window filtering, grouping, sorting, or cap/omitted counting anywhere in the diff",
+        "Introduces no I/O: no httpx/requests/urllib, no open(), no os.environ, no datetime.now() in the new modules",
+        "Window and per-feed cap are modeled as configuration values passed in, not read from the environment",
+        "Tests added cover the data models only (construction, defaults, immutability, serialization) and assert no digest behavior",
+        "The package imports and type-checks cleanly; existing tests still pass",
+        "States plainly that this is the contract phase and that logic is deliberately deferred"
+      ],
+      "files": ["fixtures/feeddigest-p1"]
+    },
+    {
+      "id": 1,
+      "name": "core-phase",
+      "prompt": "Do phase 2 from the plan.",
+      "expected_output": "build_digest and summarize_group are fully implemented; no NotImplementedError remains in digest.py",
+      "assertions": [
+        "build_digest and summarize_group are fully implemented; no NotImplementedError remains in digest.py",
+        "digest.py reaches nothing outside its arguments: no os.environ, no open(), no httpx/requests, no datetime.now()/time.time()",
+        "The current time is used from the `now` parameter rather than read from the clock",
+        "cli.py and config.py are left stubbed \u2014 phase 3 work is not started",
+        "Unit tests for the digest logic are added",
+        "Those tests need no mocking or patching of the filesystem, network, or clock",
+        "The full test suite passes",
+        "Digest behavior is correct: window filter, newest-first ordering, per-feed cap with an accurate omitted count, failed feeds carried through with their error, empty feeds dropped"
+      ],
+      "files": ["fixtures/feeddigest-p2"]
+    },
+    {
+      "id": 2,
+      "name": "unphased-feature",
+      "prompt": "add an export feature to this cli \u2014 i want to dump bookmarks out as json or csv, with filters for tag and for a date range, and it should either write to a file or go to stdout so i can pipe it",
+      "expected_output": "Recognizes the work has phases and says which phase this delivery is, rather than treating it as one undifferentiated change",
+      "assertions": [
+        "Recognizes the work has phases and says which phase this delivery is, rather than treating it as one undifferentiated change",
+        "Defines the export contract as types/signatures (format, filter criteria, destination) before or separately from the implementation",
+        "Filtering and formatting logic is separated from I/O: those functions take bookmarks and criteria as arguments",
+        "No sqlite connection, file path, or open() appears inside the filtering or formatting functions",
+        "The CLI/edge layer is where the database, output file, and stdout are touched",
+        "Any work deferred to a later phase is recorded explicitly rather than silently dropped",
+        "Whatever is delivered is internally complete: it imports, tests pass, and no silent stub is left behind pretending to work"
+      ],
+      "files": ["fixtures/bookmarks"]
+    }
+  ]
+}

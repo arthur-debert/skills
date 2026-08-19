@@ -1,0 +1,7 @@
+interface:
+  display_name: "Slop Cleanup"
+  short_description: "Remove comment sediment and misplaced rationale"
+  default_prompt:
+    "Use $slop-cleanup to remove process sediment, duplicated rationale,
+    self-evident narration, and misplaced documentation from comments in the
+    requested scope without changing behavior."
