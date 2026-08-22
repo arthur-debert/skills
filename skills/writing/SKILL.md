@@ -90,6 +90,36 @@ Apply these to your own drafts and to documents you are reviewing.
   conversation you are in and the reader shares none of it. Text that reads as
   tight while you write it and as empty a week later failed this one.
 
+## Two more tests, once the document has neighbours
+
+The three tests above judge a passage on its own. A document in a set can pass
+all three and still be wrong, because both failures below need two places read
+together.
+
+- **The ownership test.** Does this section carry facts another document owns,
+  or omit facts it owes because it assumed the reader already knew? See
+  [Whose fact is it?](#whose-fact-is-it) for how to answer it while writing.
+- **The self-consistency test.** Does the document contradict itself, or a
+  sibling? Read every claim of the form "exactly N", "only these", "never", "the
+  one X" against every other statement about the same thing. Check the glossary
+  case too: one word used for two objects with the distinction never drawn is
+  the same defect wearing a disguise.
+
+The second test matters more than it sounds. Verdict prose _hides_
+contradictions: when a sentence asserts nothing checkable, the sentence
+contradicting it does not collide with anything, so both survive. Measured on
+one corpus, a re-read that added just these two tests overturned every one of
+eleven documents that had passed the first three — including a document
+asserting "Kent is stateless" and "kent owns state" eight lines apart, in a
+section titled "State".
+
+What that pass found, almost entirely, was flat factual contradiction: "exactly
+two workflow files" against "a further generated caller per trigger"; "one build
+yields many artifacts" against "artifacts exist only on the release side"; two
+commands each documented as doing the same setup step; a document claiming to
+own a model it never states. None of it is a matter of taste, and none of it is
+visible one sentence at a time.
+
 ## The shape that works
 
 Goal and constraints, then the concrete choice, then what it costs and what it
@@ -227,7 +257,10 @@ A five-step pass over any draft:
    does, replace the explanation with a cross-reference.
 6. Run the word check — see `dejargon` below. Every test above passes sentences
    built on metaphor, so this is a separate pass, not a side effect.
-7. Run the disagreement test on the whole piece.
+7. Grep your own absolutes — "exactly", "only", "never", "the one" — and read
+   each against everything else said about the same thing, in this document and
+   its siblings.
+8. Run the disagreement test on the whole piece.
 
 ## Calibration
 
