@@ -113,6 +113,16 @@ eleven documents that had passed the first three — including a document
 asserting "Kent is stateless" and "kent owns state" eight lines apart, in a
 section titled "State".
 
+**A contradiction between two vague statements is usually a missing distinction,
+not a disagreement.** When the author of that corpus went through the
+contradictions this test found, not once was one side right and the other wrong.
+"State" turned out to be three things — data held elsewhere, a config file never
+mutated, and one small mutable thing. "Artifact" was one object with two roles.
+"Path-pure, no network" was a garbled way of saying "runs on your laptop". Both
+halves were true and about different things, and the abstraction had hidden
+that. So when you find one, do not pick a winner: look for the distinction
+neither sentence draws.
+
 What that pass found, almost entirely, was flat factual contradiction: "exactly
 two workflow files" against "a further generated caller per trigger"; "one build
 yields many artifacts" against "artifacts exist only on the release side"; two
@@ -195,6 +205,18 @@ nothing in it to see. "Evaluation competes with development" names no actor and
 no resource; "running the suite spends the tokens the fleet is developing on"
 names both.
 
+**Give the property to the thing that has it.** "A session is the durable unit"
+attributes durability to an entity in a model; what is actually durable is the
+mounted disk the session writes to. The session dies with its container. Ask
+which concrete thing provides the property, and say that instead — the entity
+usually turns out not to have it.
+
+**State what a rule buys, not only what it forbids.** "Github never computes"
+tells a reader what does not happen and leaves the benefit to be inferred. "A
+workflow calls a task that runs the same on your laptop, so a CI change is
+tested before it is pushed" gives the rule and its reason together. Prohibitions
+are cheap to write and leave the reader to reconstruct the point.
+
 **Not every sentence is an argument.** A goals list states goals. A command
 reference says what a verb does. Compressing an argument into a goal statement
 is altitude drift wearing the costume of rigor — the argument belongs to the doc
@@ -260,7 +282,9 @@ A five-step pass over any draft:
 7. Grep your own absolutes — "exactly", "only", "never", "the one" — and read
    each against everything else said about the same thing, in this document and
    its siblings.
-8. Run the disagreement test on the whole piece.
+8. If you deleted or corrected a claim, grep for the documents that cite it. A
+   corrected claim with stale citers is a new contradiction you just made.
+9. Run the disagreement test on the whole piece.
 
 ## Calibration
 
@@ -280,16 +304,32 @@ compression as such.
 **Do not rewrite the user's own words back at them.** Answer what they asked;
 apply this to your own prose.
 
+## Repairing an existing corpus
+
+Everything above is about writing a document. Repairing a set of documents
+someone else already wrote is a different job with its own failure modes —
+scoring without priming the scorers, keeping the rewriting agent away from the
+prose it is replacing, marking what is undecided instead of inventing it, and
+handing the author the decisions the vague prose was concealing.
+
+Read [references/fixing-a-corpus.md](references/fixing-a-corpus.md) when the
+task is a doc set, a spec tree, a handbook or a wiki rather than one document.
+Not needed for ordinary writing; skip it unless you are repairing at scale.
+
 ## Related skills
 
 - `dejargon` — the word level: vague mechanical metaphors (gate, leg, pin,
   load-bearing, surface, mint, ride) swapped for the concrete actor and
-  mechanism. **The two skills do not substitute for each other in either
-  direction, and you must run both.** Text passes dejargon cleanly and is still
-  pure verdict; text passes every test in this skill — naming actors, arguable,
-  buildable-from — and is still built on metaphor. Measured on one corpus: a
-  rewrite done to this standard alone left 60 banned and watchlist words
-  standing across 14 documents, 7 of them `gate`, some in sentences written
-  during that very rewrite.
+  mechanism. Its list does not cover abstract **verbs and adjectives** that name
+  a change or a quality without naming what changed or what provides it —
+  _converge, materialize, reconcile, durable, doctrine_. Those pass both skills:
+  the sentence has an actor and a verb, and the word is not a mechanical
+  metaphor. Watch for them yourself. **The two skills do not substitute for each
+  other in either direction, and you must run both.** Text passes dejargon
+  cleanly and is still pure verdict; text passes every test in this skill —
+  naming actors, arguable, buildable-from — and is still built on metaphor.
+  Measured on one corpus: a rewrite done to this standard alone left 60 banned
+  and watchlist words standing across 14 documents, 7 of them `gate`, some in
+  sentences written during that very rewrite.
 - `slop-clean` — removing session sediment (dates, provenance, verification
   narration) from text already committed.
