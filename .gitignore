@@ -2,3 +2,5 @@
 lefthook-local.yml
 .lefthook-local/
 node_modules/
+.claude
+.agents
