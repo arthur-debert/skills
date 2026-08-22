@@ -18,6 +18,7 @@ matches the `name` field in `SKILL.md`.
 | [`dejargon`](skills/dejargon/SKILL.md)               | Replace vague mechanical-metaphor jargon with the concrete actor, mechanism, and consequence.                    |
 | [`interface-first`](skills/interface-first/SKILL.md) | Decide whether a feature's interface should land as its own workstream, and how to build one when it does.       |
 | [`slop-clean`](skills/slop-clean/SKILL.md)           | Remove session sediment from persisted comments, docs, scripts, and config without changing executable behavior. |
+| [`writing`](skills/writing/SKILL.md)                 | Write descriptions, not meta-analysis: actors, constraints, and consequences instead of verdicts about a design. |
 
 ## Install
 
