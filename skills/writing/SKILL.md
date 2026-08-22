@@ -226,6 +226,39 @@ that owns it, and the goal should just be stated plainly.
 serializer" are gestures at an argument. Say how much of what, measured or
 estimated how.
 
+## Coined terms
+
+A failure class that passes every test above and `dejargon` too: the
+project-private coinage. A word gets coined for one apt use — _mint_ for issuing
+an identifier, _fold_ for a typed merge — and then spreads, because reusing it
+is always cheaper than naming the actual operation and each new use is locally
+defensible. The word's effective meaning becomes the union of its uses, and a
+union that broad is empty. Then coinages compose ("the fold mints build
+identities"), and a reader needs two private decoder rings for one sentence.
+Since models match the register they read, every generation of text both
+consumes and re-emits the dialect — the drift is monotonic unless something
+pushes back.
+
+The test for whether a recurring term is a name or a corrosion:
+
+- It is a **real external term** — APIs, commands, other people's docs reference
+  it — or
+- it is **defined in the context where it is used**: the defining clause is on
+  the page, or the use glosses itself ("the rate allowance — the one
+  subscription pool every session draws on").
+
+Appearing in the project's _own_ identifiers, comments, or printed help text is
+**not** license. That means the dialect has already spread to the channels
+future agents ingest, and those need the same replacement, not deference.
+
+The mechanical check is the **decode test**: replace the term at every site with
+what it concretely means there, and count the distinct words you needed. One or
+two — it is a name; keep it. Three or more — it was transmitting nothing while
+reading as precise. Measured on one corpus, _mint_ decoded to eight different
+verbs across its sites: generate, create, assign, open, write, obtain, fetch,
+add. Each use was defensible; together they meant "bring into existence
+somehow", which no reader can build from.
+
 ## Tells
 
 Recognizable patterns. Each one has a mechanical fix.
@@ -296,10 +329,12 @@ usually facts that belong to a neighbouring document.
 **Concrete is not remedial.** Specific means naming the actual thing, not
 explaining what an object store is to people who ship them.
 
-**Shared vocabulary is allowed once it is defined.** A term the doc set defines,
-or a name printed by the tool itself, is a name and not a metaphor. Use it. The
-failure is compression against a prior the reader does not have — not
-compression as such.
+**Shared vocabulary is allowed once it passes the coined-term test.** A real
+external term, or one defined in the context where it is used, is a name and not
+a metaphor. Use it. But a term's presence in the project's own code or printed
+output does not make it a name — run the decode test
+([Coined terms](#coined-terms)). The failure is compression against a prior the
+reader does not have — not compression as such.
 
 **Do not rewrite the user's own words back at them.** Answer what they asked;
 apply this to your own prose.
@@ -324,8 +359,11 @@ Not needed for ordinary writing; skip it unless you are repairing at scale.
   a change or a quality without naming what changed or what provides it —
   _converge, materialize, reconcile, durable, doctrine_. Those pass both skills:
   the sentence has an actor and a verb, and the word is not a mechanical
-  metaphor. Watch for them yourself. **The two skills do not substitute for each
-  other in either direction, and you must run both.** Text passes dejargon
+  metaphor. Watch for them yourself. Its project-vocabulary boundary (a term the
+  project's code or output prints is a name — keep it) is also overruled by the
+  [Coined terms](#coined-terms) test here: code usage does not grandfather
+  prose, it marks more text to sweep. **The two skills do not substitute for
+  each other in either direction, and you must run both.** Text passes dejargon
   cleanly and is still pure verdict; text passes every test in this skill —
   naming actors, arguable, buildable-from — and is still built on metaphor.
   Measured on one corpus: a rewrite done to this standard alone left 60 banned

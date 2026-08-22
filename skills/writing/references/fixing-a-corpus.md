@@ -7,6 +7,29 @@ a handbook, or a wiki — not when you are writing a single document.
 The short version: the writing is the visible problem and the missing decisions
 are the real one. Plan for the second from the start.
 
+## Two modes
+
+Pick the campaign's shape before anything else.
+
+**The pipeline mode** — score, interrogate, rewrite, check, with the reader
+separated from the writer — is what most of this document describes. Use it when
+the author is absent or slow to respond, the corpus is large or mixed-voice, and
+the standard being applied is already settled.
+
+**The calibration-sample mode** is cheaper and fits the opposite case: the
+author is present and responsive, the corpus is one voice, and the standard
+itself is still being worked out. Pick one document and present **findings, not
+edits** — quote, defect, proposed fix. Let the author correct your judgment over
+a round or two: what you over-flagged, what you missed, what rule they actually
+hold. Their corrections are the deliverable of those rounds — **write each one
+down as an explicit rule before touching a second document**, then sweep the
+rest of the corpus with the accreted ruleset. Relayed conversationally instead
+of written down, the corrections soften and the sweep drifts back to your first
+calibration.
+
+The modes compose: a calibration sample can settle the standard that a pipeline
+campaign then applies at scale.
+
 ## Do not blanket-rewrite
 
 Score first. A corpus that reads uniformly bad is usually not uniformly bad, and
@@ -166,6 +189,16 @@ A corrected claim with stale citers is a new contradiction you just made. After
 any deletion, grep for documents citing the deleted statement. They will be
 citing the document you just fixed, as authority for something it no longer
 says.
+
+## The corpus is everything agents ingest
+
+The doc set is not the boundary of the disease. The same dialect lives in code
+comments, docstrings, CLI help strings, READMEs, commit templates, and skill
+files — exactly the channels future agents read — and a swept doc set gets
+reinfected from whatever text was left unswept, because the next agent imitates
+whichever register it ingests. Sweep them all, under each surface's own editing
+regime: prose freely, comments and help strings as text changes, identifier and
+file renames as code changes verified by the test suite.
 
 ## Let agents refuse you
 
