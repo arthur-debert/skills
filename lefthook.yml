@@ -9,11 +9,24 @@ pre-commit:
       run: .agents/hooks/pre-commit
     prettier:
       priority: 2
-      run:
-        git ls-files -z "*.md" "*.json" "*.yml" "*.yaml" | xargs -0 prettier
-        --check
-      fail_text:
-        "Run 'prettier --write' on the listed files and stage the result."
+      run: |
+        if git ls-files -z "*.md" "*.json" "*.yml" "*.yaml" | xargs -0 prettier --check; then
+          exit 0
+        fi
+        echo
+        echo "── what prettier would change (printWidth 80, proseWrap: always) ──"
+        git ls-files -z "*.md" "*.json" "*.yml" "*.yaml" |
+          xargs -0 prettier --list-different |
+          while IFS= read -r f; do
+            echo
+            prettier "$f" | diff -u "$f" - || true
+          done
+        exit 1
+      fail_text: >-
+        Prettier style is printWidth 80 and proseWrap: always (hard-wrap
+        markdown at 80; wrapped list items indent to the text, not four spaces).
+        The diff is in the command output. Run prettier --write on the listed
+        files and stage the result.
     markdownlint:
       priority: 3
       run: git ls-files -z "*.md" | xargs -0 markdownlint
