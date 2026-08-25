@@ -1,32 +1,71 @@
-## Documentation Audit Report
+# Documentation Audit
 
-**Target Level:** [1, 2, or 3] **Overall Status:** [PASS / FAIL / NEEDS
-REVISION]
+For the target document, report:
 
-### 1. Downward Dependency
+**Role:** [why-for-whom / what / how — one or several] **Parent:** [the document
+it inherits decisions from, or "root"] **Coverage:** [what the role owes that
+the doc never answers — how the parts relate, the first action, who it is for]
+**Overall:** [PASS / NEEDS REVISION]
 
-- **Status:** [Pass / Fail]
-- **Critique:** [Explain if the document drifted out of scope for its level.
-  Quote the exact sentences that violate this rule. If it passes, briefly state
-  why.]
-
-### 2. Self-Evident Headline
+## 1. The system as subject
 
 - **Status:** [Pass / Fail]
-- **Critique:** [Verify the title and subtitle exist and are adequately scoped.]
+- **Critique:** [Examine the opening block — everything before the first section
+  heading. Is any sentence in it about the document rather than the system? Does
+  it contain at least one named concrete thing — a command, file, input/output —
+  and, for a runnable system, the reader's first action? Then quote any sentence
+  *anywhere* in the document whose subject is the file, its sections, or its
+  words. Also flag when the whole organizing scheme is the document's own
+  taxonomy — owns / does not own / vocabulary — rather than the reader's
+  questions.]
 
-### 3. Linear Context Guarantee
+## 2. Headline
 
 - **Status:** [Pass / Fail]
-- **Critique:** [Flag any forward-references or missing prerequisite context.]
+- **Critique:** [Title plus one-to-two sentence subtitle that lets a reader
+  scanning the directory decide whether to open it. For a root README, the first
+  sentence of the opening block counts as the subtitle.]
 
-### 4. Cognitive Threshold
+## 3. Borders
 
 - **Status:** [Pass / Fail]
-- **Critique:** [Assess the length and chunking. Identify specific sections that
-  need to be extracted into a deeper Level document.]
+- **Critique:** [Quote any sentence that overrides a decision the parent owns,
+  and any material too deep for this document's role. Where a child doc exists,
+  the displaced fact moves there behind a cross-reference; where none exists,
+  the fix is cutting the depth to its one-line summary — recommend a new doc
+  only for a screenful or more of displaced material.]
 
-### Actionable Remediation
+## 4. Terms defined before use
 
-[Provide 2-3 explicit, bulleted instructions for the author to fix the flagged
-violations.]
+- **Status:** [Pass / Fail]
+- **Critique:** [List every project-coined term used before it is defined on the
+  page. A glossary elsewhere does not count, and a glossary entry that is a bare
+  word with no definition is itself a finding.]
+
+## 5. Task residue
+
+- **Status:** [Pass / Fail]
+- **Critique:** [Quote every unmotivated negation — "X is never Y", "X does
+  nothing" — that prices no real alternative, and any deliberation residue or
+  session sediment. A scope section ("what it does not do") is licensed as a
+  section; each entry inside it still owes who owns the refused thing or what
+  the reader gets instead. A negation paired in-sentence with its positive half
+  passes; one restating the prior clause negatively is redundancy. A stated
+  rationale for breaking a rule is itself residue, not a waiver.]
+
+## 6. Size
+
+- **Status:** [Pass / Fail]
+- **Critique:** [Past ~200 lines: name the deepest section to extract into a
+  child doc. Under a screenful: name the parent it should be a section of. Do
+  NOT recommend new documents for material that fits here. For a product spec
+  the ceiling is stricter — ~100 lines of prose, 300 far too much — and the
+  remedy is splitting into multiple specs, never child docs. Also for specs:
+  flag exhaustive variant enumeration where classes would do.]
+
+## Remediation
+
+[Two to four explicit, bulleted instructions, each pointing at quoted text.]
+
+Then run the `writing` skill's review on the prose itself; this audit covers
+structure only.

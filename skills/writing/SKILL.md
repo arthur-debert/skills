@@ -282,9 +282,15 @@ needs, not the order you figured it out in.
 
 Ask first: who reads this, and what are they about to do with it?
 
-- **Design doc / spec / ADR.** The reader is deciding whether to agree, or
-  building from it. Goal, constraints, the concrete choice, why the constraints
-  force it, what is deferred. Not a defense of the choice.
+- **Design doc / ADR.** The reader is deciding whether to agree, or building
+  from it. Goal, constraints, the concrete choice, why the constraints force it,
+  what is deferred. Not a defense of the choice.
+- **Product spec.** The reader is checking what the user gets — before the build
+  as the brief, after it as the acceptance test. The problem and for whom, the
+  solution in plain English, the common behavior and its error classes, the
+  interaction (commands, config, flow). The constraint-forced choice above
+  belongs to the design doc, not here; structure rules live in
+  `writing-documentation`.
 - **PR description.** The reader is reviewing. What changed in the code, what
   problem it fixes, what to look at hardest, how to verify it. Not "improves
   ergonomics of the retry path".

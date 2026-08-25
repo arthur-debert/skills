@@ -4,3 +4,4 @@ lefthook-local.yml
 node_modules/
 .claude
 .agents
+.padz/
