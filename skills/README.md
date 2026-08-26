@@ -10,6 +10,7 @@ npx skills add arthur-debert/skills
 | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | [`dejargon`](dejargon/SKILL.md)               | Replace vague mechanical-metaphor jargon with the concrete actor, mechanism, and consequence.                    |
 | [`interface-first`](interface-first/SKILL.md) | Decide whether a feature's interface should land as its own workstream, and how to build one when it does.       |
+| [`loc-refactor`](loc-refactor/SKILL.md)       | Split oversized source and test files into cohesive modules without changing behavior.                           |
 | [`slop-clean`](slop-clean/SKILL.md)           | Remove session sediment from persisted comments, docs, scripts, and config without changing executable behavior. |
 
 Each skill is self-contained: a `SKILL.md` plus any reference files the
