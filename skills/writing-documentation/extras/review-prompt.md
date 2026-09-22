@@ -29,11 +29,11 @@ the doc never answers — how the parts relate, the first action, who it is for]
 ## 3. Borders
 
 - **Status:** [Pass / Fail]
-- **Critique:** [Quote any sentence that overrides a decision the parent owns,
-  and any material too deep for this document's role. Where a child doc exists,
-  the displaced fact moves there behind a cross-reference; where none exists,
-  the fix is cutting the depth to its one-line summary — recommend a new doc
-  only for a screenful or more of displaced material.]
+- **Critique:** [Quote any sentence that overrides a decision made in the
+  parent, and any material too deep for this document's role. Where a child doc
+  exists, the displaced fact moves there behind a cross-reference; where none
+  exists, the fix is cutting the depth to its one-line summary — recommend a new
+  doc only for a screenful or more of displaced material.]
 
 ## 4. Terms defined before use
 
@@ -46,12 +46,14 @@ the doc never answers — how the parts relate, the first action, who it is for]
 
 - **Status:** [Pass / Fail]
 - **Critique:** [Quote every unmotivated negation — "X is never Y", "X does
-  nothing" — that prices no real alternative, and any deliberation residue or
-  session sediment. A scope section ("what it does not do") is licensed as a
-  section; each entry inside it still owes who owns the refused thing or what
-  the reader gets instead. A negation paired in-sentence with its positive half
-  passes; one restating the prior clause negatively is redundancy. A stated
-  rationale for breaking a rule is itself residue, not a waiver.]
+  nothing" — that prices no real alternative, any options listed in the order
+  they were considered, and any survey, inventory, verification run or
+  chronology from the session. A scope section ("what it does not do") is
+  licensed as a section; each entry inside it still owes which project or
+  component handles the refused thing or what the reader gets instead. A
+  negation paired in-sentence with its positive half passes; one restating the
+  prior clause negatively is redundancy. A stated rationale for breaking a rule
+  is itself a trace of the authoring session, not a waiver.]
 
 ## 6. Size
 
