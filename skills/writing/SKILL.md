@@ -14,14 +14,21 @@ description: >-
 
 # Writing
 
-The reader was not in the conversation that produced this text. Everything the
-text assumes and does not say is lost to them. Write so that a competent
-stranger can build the thing, check the reasoning, and point at the sentence
-they think is wrong.
+The agent loads this skill before writing prose that outlives the conversation
+(a design doc, spec, ADR, PR description, review reply, docstring, issue
+comment, commit message, plan or status report) and when asked to rewrite or
+critique text. The reader is a competent stranger who took no part in the
+conversation that produced the text. The agent writes so that stranger can build
+the thing, check the reasoning, and point at the sentence they think is wrong.
+Anything the text assumes but does not say, that reader loses.
 
 ## The failure: a verdict where a description belongs
 
-Two ways to answer "how was the movie?"
+A verdict is a judgment about the thing. A description says what exists: the
+actor, the mechanism, the constraint. The failure is a verdict with no fact
+beside it.
+
+Two answers to "what is the film like?":
 
 > Tarkovsky post-Godard in a Tarantino-ized post-Marvel world.
 >
@@ -29,14 +36,9 @@ Two ways to answer "how was the movie?"
 > banal, with the characters discussing burgers in the middle of it. Long
 > panoramic shots and very slow camera, but the editing is chopped up.
 
-The first is not a compressed version of the second. It is a different act: an
-_analysis of_ the movie, not a description of it. It decompresses only for
-someone who already shares years of prior — and then it is wonderful, nine words
-doing the work of an essay. For everyone else there is nothing in it to unpack,
-because the description was never in there to begin with.
-
-Technical prose fails the same way, and the failure hides better because the
-vocabulary sounds rigorous.
+The first is not a compressed form of the second. A reader spots a software
+verdict less easily than the film verdict: "schema-versioned jsonl" and "the
+vendor's own machine contract" sound rigorous.
 
 ### Before
 
@@ -49,10 +51,7 @@ vocabulary sounds rigorous.
 > internal model tracking a convention that moves. The store is schema-versioned
 > jsonl in the machine-data bucket, with duckdb as a rebuildable index.
 
-Nothing here is checkable. "Source of truth", "machine contract", "the
-projection outward", "a convention that moves" are all judgments about a design
-whose mechanics were never stated. A reader cannot build this, and a reader who
-thinks it is wrong has no sentence to argue with.
+A reader can neither check, build from, nor argue with any sentence in it.
 
 ### After
 
@@ -70,310 +69,244 @@ thinks it is wrong has no sentence to argue with.
 > or keep in sync. If that gets too slow at our record counts, we add a
 > persistent index layer then.
 
-Same length. The difference is not verbosity — it is that every sentence now
-carries a fact you could act on or dispute.
+The After is the same length as the Before; the difference is facts in place of
+verdicts, not padding. Every sentence in the After states something the reader
+can act on or dispute.
 
 ## Three tests
 
-Apply these to your own drafts and to documents you are reviewing.
+The agent runs these on its drafts and on documents it reviews.
 
-- **The disagreement test.** Could a reader who thinks you are wrong quote the
-  sentence they would fight? If not, the text contains no claims — only
-  atmosphere. "The stream is the source of truth because it is the vendor's own
-  machine contract" cannot be argued with. "We write one object per session
-  because GCS has no atomic append" can.
-- **The build test.** Could a competent stranger build it, draw it, or call it
-  from this alone? A description says what exists. A verdict says how to feel
-  about what exists.
-- **The cold-reader test.** Does this still decompress for someone who was not
-  in the session that produced it? You share an enormous prior with the
-  conversation you are in and the reader shares none of it. Text that reads as
-  tight while you write it and as empty a week later failed this one.
+1. **Disagreement test.** Trigger: any paragraph. Action: ask whether a reader
+   who thinks the text is wrong could quote the sentence they would fight. If
+   not, the text has no claims. "The stream is the source of truth because it is
+   the vendor's own machine contract" fails. "We write one object per session
+   because GCS has no atomic append" passes.
+2. **Build test.** Trigger: any description of a system. Action: ask whether a
+   competent stranger could build, draw or call the thing from this text alone.
+3. **Cold-reader test.** Trigger: any draft written inside a conversation.
+   Action: ask whether the text decompresses for someone absent from that
+   conversation. Text that reads as tight while written and as empty a week
+   later fails.
 
 ## Two more tests, once the document has neighbours
 
-The three tests above judge a passage on its own. A document in a set can pass
-all three and still be wrong, because both failures below need two places read
-together.
+Tests 4 and 5 compare a passage with its neighbours; a passage read alone cannot
+fail them. A document **owns** a fact when it is the place that fact is stated;
+every other document cites it there.
 
-- **The ownership test.** Does this section carry facts another document owns,
-  or omit facts it owes because it assumed the reader already knew? See
-  [Whose fact is it?](#whose-fact-is-it) for how to answer it while writing.
-- **The self-consistency test.** Does the document contradict itself, or a
-  sibling? Read every claim of the form "exactly N", "only these", "never", "the
-  one X" against every other statement about the same thing. Check the glossary
-  case too: one word used for two objects with the distinction never drawn is
-  the same defect wearing a disguise.
+- **Test 4, which-document.** Trigger: a section in a document with siblings.
+  Action: ask whether it states facts another document owns, or omits facts it
+  owns because it assumed the reader knows them. To answer while writing, read
+  the heading and ask what a reader who opened this document came for.
+- **Test 5, self-consistency.** Trigger: any claim of the form "exactly N",
+  "only these", "never", "the one X". Action: read it against every other
+  statement about the same thing in this document and its siblings. One word
+  used for two objects with the distinction never drawn is the same failure
+  (`writing-documentation/SKILL.md`, Define terms where the reader meets them).
 
-The second test matters more than it sounds. Verdict prose _hides_
-contradictions: when a sentence asserts nothing checkable, the sentence
-contradicting it does not collide with anything, so both survive. Measured on
-one corpus, a re-read that added just these two tests overturned every one of
-eleven documents that had passed the first three — including a document
-asserting "Kent is stateless" and "kent owns state" eight lines apart, in a
-section titled "State".
-
-**A contradiction between two vague statements is usually a missing distinction,
-not a disagreement.** When the author of that corpus went through the
-contradictions this test found, not once was one side right and the other wrong.
-"State" turned out to be three things — data held elsewhere, a config file never
-mutated, and one small mutable thing. "Artifact" was one object with two roles.
-"Path-pure, no network" was a garbled way of saying "runs on your laptop". Both
-halves were true and about different things, and the abstraction had hidden
-that. So when you find one, do not pick a winner: look for the distinction
-neither sentence draws.
-
-What that pass found, almost entirely, was flat factual contradiction: "exactly
-two workflow files" against "a further generated caller per trigger"; "one build
-yields many artifacts" against "artifacts exist only on the release side"; two
-commands each documented as doing the same setup step; a document claiming to
-own a model it never states. None of it is a matter of taste, and none of it is
-visible one sentence at a time.
+A sentence that asserts nothing checkable does not collide with the sentence
+contradicting it, so both survive. When two vague statements contradict, the
+agent does not pick a winner; it looks for the distinction neither sentence
+draws.
 
 ## The shape that works
 
-Goal and constraints, then the concrete choice, then what it costs and what it
-defers.
+A design section, in this order:
 
-1. **What are we trying to do, and what bounds it.** No server. Not local
-   either. Reachable from anywhere.
-2. **What we picked, named specifically.** GCS. DuckDB. Not "cloud-native
-   storage" or "a client-side query layer".
-3. **Why the constraints force it,** so the reader can disagree with the link
-   rather than the conclusion.
-4. **What it costs, and what is deferred,** stated as deferred: "no persistent
-   index until query time gets slow".
+1. The goal and what bounds it.
+2. The pick, named specifically: GCS, DuckDB, not "cloud-native storage".
+3. Why the constraints force it.
+4. What it costs and what is deferred, stated as deferred: "no persistent index
+   until query time gets slow".
 
-Constraints first is what builds the mental model. Give people the problem
-before the answer and the answer explains itself; give them the answer alone and
-they memorize it without understanding it.
+The agent writes the constraints before the pick because a reader given the
+problem understands the answer; a reader given the answer alone memorizes it.
 
 ## Whose fact is it?
 
-Concreteness has a direction, and it will run away with you. Every rule above
-pushes toward adding — name the mechanism, price the tradeoff, state the
-constraint. Nothing above pushes back, so a rewrite guided only by those rules
-grows without limit and drifts upward in detail until an overview is explaining
-a cache layer.
+Every test except the which-document test adds a fact; that one is the only
+check that removes. An agent running only the adding tests lengthens every
+document until an overview explains a cache its component document describes.
 
-The governor is ownership. **Before adding a fact, ask whether this document
-owns it, or defers to one that does.** When the mechanism lives elsewhere, the
-cross-reference _is_ the concrete answer — a pointer to the owner is not a
-vaguer sentence, it is the correct one.
+Before adding a fact, the agent asks whether this document owns it. When the
+mechanism lives elsewhere, the agent writes the cross-reference, which is the
+concrete answer, not a vaguer one (`writing-documentation/SKILL.md`, Detail
+flows down, decisions don't flow up; `slop-clean/SKILL.md`, Pass 2).
 
-- An overview is navigated from, not built from. It names what is optimized and
-  points at the doc that owns each mechanism.
-- A command reference says what each verb does. The policy about when to reach
-  for that verb belongs to the doc that owns the model.
-- A stack or build-vs-buy doc argues the choice. The shape of the data flowing
-  through it belongs to the data-model doc.
+Which document states which fact:
 
-The test that catches this: read the heading, then ask what a reader who opened
-_this_ document came for. Facts they came for, state. Facts they would go
-elsewhere for, cite.
+- An overview names what is optimized and points at the document for each
+  mechanism.
+- A command reference says what each verb does. When to use the verb belongs to
+  the document that describes the system's conceptual model.
+- A stack or build-vs-buy document argues the choice. The shape of the data
+  belongs to the data-model document.
 
-Judgments are welcome — after the description, next to the fact that earns them.
-"Slow editing" is a fine thing to say once you have said the shots are long.
-Judgment instead of description is the failure; judgment on top of it is the
-point.
+To choose between stating and citing, the agent reads the heading and asks what
+a reader who opened this document came for. It states those facts and cites the
+ones they would go elsewhere for.
+
+A judgment stays when the fact that earns it is on the page beside it: "slow
+editing" once the text has said the shots are long.
 
 ## Sentence mechanics
 
-**Give every sentence an actor and a verb.** The subject should be a program, a
-person, a file, a command, a request — something that does things. Abstract
-subjects are where descriptions go to die.
+- **Abstract subject.** Make an actor the subject: a program, a person, a file,
+  a command, a request. Bad: "Capture is the session's own result stream." Good:
+  "minsky, the capture program in the Before exemplar, reads the backend's
+  stdout and writes one JSON record per session."
+- **"The store", "the query layer", "the projection outward".** Write the real
+  thing: `gcs`, `DuckDB`, `session.jsonl`, `parse_turns()`, HTTP 429.
+- **"Robust", "principled", "clean", "first-class", "rich".** Delete the
+  adjective, or state the fact that would make a reader say it unprompted
+  (`dejargon/SKILL.md`, The watchlist).
+- **Several claims in one sentence.** One claim per sentence, or cut to the one
+  that matters. "Evals gate a harness change and draw on that same pool, so
+  evaluation competes with development and suite size is a design constraint" is
+  four claims and no picture.
+- **Category nouns (pool, surface, layer, model, constraint, competition).**
+  Name the thing.
+- **A property attributed to an entity in the system's model.** Name the
+  concrete thing that provides the property.
+- **A rule stated as a prohibition.** State what the rule buys alongside what it
+  forbids. Bad: "Github never computes." Good: "A workflow calls a task that
+  runs the same on your laptop, so a CI change is tested before it is pushed."
+  `writing-documentation/SKILL.md`, No task residue, states the same rule.
+- **"Cheap", "expensive", "doesn't scale", "costs a serializer".** Say how much
+  of what, measured or estimated how.
 
-- Bad: "Capture is the session's own result stream."
-- Good: "minsky reads the backend's stdout and writes one JSON record per
-  session."
-
-**Name real things.** `gcs`, `DuckDB`, `session.jsonl`, `parse_turns()`, HTTP
-429 — not "the store", "the query layer", "the projection outward".
-
-**Every adjective needs a fact behind it.** "Robust", "principled", "clean",
-"first-class", "rich" assert quality without evidence. Either delete them or
-state the fact that would make a reader say it unprompted.
-
-**One claim per sentence.** Three claims packed into one sentence read as dense
-and land as none. "Evals gate a harness change and draw on that same pool, so
-evaluation competes with development and suite size is a design constraint" is
-four claims and no picture. Split it, or cut to the one that matters.
-
-**Name the thing, not its category.** _Pool, surface, layer, model, constraint,
-competition_ are categories. A sentence whose every noun is a category has
-nothing in it to see. "Evaluation competes with development" names no actor and
-no resource; "running the suite spends the tokens the fleet is developing on"
-names both.
-
-**Give the property to the thing that has it.** "A session is the durable unit"
-attributes durability to an entity in a model; what is actually durable is the
-mounted disk the session writes to. The session dies with its container. Ask
-which concrete thing provides the property, and say that instead — the entity
-usually turns out not to have it.
-
-**State what a rule buys, not only what it forbids.** "Github never computes"
-tells a reader what does not happen and leaves the benefit to be inferred. "A
-workflow calls a task that runs the same on your laptop, so a CI change is
-tested before it is pushed" gives the rule and its reason together. Prohibitions
-are cheap to write and leave the reader to reconstruct the point.
-
-**Not every sentence is an argument.** A goals list states goals. A command
-reference says what a verb does. Compressing an argument into a goal statement
-is altitude drift wearing the costume of rigor — the argument belongs to the doc
-that owns it, and the goal should just be stated plainly.
-
-**Price every tradeoff.** "Cheap", "expensive", "doesn't scale", "costs a
-serializer" are gestures at an argument. Say how much of what, measured or
-estimated how.
+Not every sentence argues. A goals list states goals; a command reference says
+what a verb does. The reason for a choice goes in the design doc; a goals list
+that states the reason sits at a different level of detail than its heading.
 
 ## Coined terms
 
-A failure class that passes every test above and `dejargon` too: the
-project-private coinage. A word gets coined for one apt use — _mint_ for issuing
-an identifier, _fold_ for a typed merge — and then spreads, because reusing it
-is always cheaper than naming the actual operation and each new use is locally
-defensible. The word's effective meaning becomes the union of its uses, and a
-union that broad is empty. Then coinages compose ("the fold mints build
-identities"), and a reader needs two private decoder rings for one sentence.
-Since models match the register they read, every generation of text both
-consumes and re-emits the dialect — the drift is monotonic unless something
-pushes back.
+A coined term is a project-private word coined for one apt use (mint for issuing
+an identifier, fold for a typed merge). It spreads because reusing the word is
+always cheaper than naming the actual operation, until its meaning is the union
+of its uses and empty. Coinages then compose ("the fold mints build identities")
+and one sentence needs two private decoders.
+`writing/references/fixing-a-corpus.md`, Separate the reader from the writer,
+says why the drift does not stop.
 
-The test for whether a recurring term is a name or a corrosion:
+The agent keeps a recurring term when either holds:
 
-- It is a **real external term** — APIs, commands, other people's docs reference
-  it — or
-- it is **defined in the context where it is used**: the defining clause is on
-  the page, or the use glosses itself ("the rate allowance — the one
-  subscription pool every session draws on").
+- It is a real external term: APIs, commands or other people's docs reference
+  it.
+- It is defined where the reader meets it: the defining clause is on the page,
+  or the use glosses itself ("the rate allowance — the one subscription pool
+  every session draws on").
 
-Appearing in the project's _own_ identifiers, comments, or printed help text is
-**not** license. That means the dialect has already spread to the channels
-future agents ingest, and those need the same replacement, not deference.
+Not yet decided: whether a term the project's own CLI prints counts as a name
+(`dejargon/SKILL.md`, Boundaries) or must pass the decode test.
 
-The mechanical check is the **decode test**: replace the term at every site with
-what it concretely means there, and count the distinct words you needed. One or
-two — it is a name; keep it. Three or more — it was transmitting nothing while
-reading as precise. Measured on one corpus, _mint_ decoded to eight different
-verbs across its sites: generate, create, assign, open, write, obtain, fetch,
-add. Each use was defensible; together they meant "bring into existence
-somehow", which no reader can build from.
+**Decode test.** Trigger: a term that recurs across a document or corpus.
+Action: replace it at every site with what it concretely means there and count
+the distinct words needed. One or two: it is a name; keep it. Two decoded
+meanings are a name only when the text draws the distinction between them;
+otherwise the term is one word for two objects. Three or more: replace it at
+every site with the meaning at that site.
 
 ## Tells
 
-Recognizable patterns. Each one has a mechanical fix.
+| Tell                                                                                                            | Action                                                                                                                                    |
+| --------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Verdict noun: "source of truth", "the real contract", "the one shape", "the projection"                         | State the mechanism the verdict is about.                                                                                                 |
+| Abstract subject: "Capture is...", "Adoption would...", "The export is..."                                      | Find the actor and make it the subject.                                                                                                   |
+| The same "A is X because Y; B is Z, so W" shape repeated in a paragraph                                         | Leave it when both halves state facts. Not yet decided: how many repetitions in one paragraph trigger a rewrite, and what the rewrite is. |
+| Unpriced tradeoff: "costs a serializer", "doesn't scale"                                                        | Give the number, or the mechanism that produces it.                                                                                       |
+| Unearned adjective: robust, first-class, ergonomic, principled                                                  | Delete it, or add beside it the fact that earns it.                                                                                       |
+| Orphan instance: one specific record type dropped into a general section                                        | Move it to where instances belong, or label it.                                                                                           |
+| What the writer considered, in the order considered                                                             | Keep the conclusion and the reason; drop the search.                                                                                      |
+| A paragraph at a different level of detail than its heading: a section titled "Stack" arguing design philosophy | Read the heading, then the paragraph; check they match.                                                                                   |
 
-| Tell                     | Looks like                                                        | Fix                                                   |
-| ------------------------ | ----------------------------------------------------------------- | ----------------------------------------------------- |
-| **The verdict noun**     | source of truth, the real contract, the one shape, the projection | State the mechanism the verdict is about              |
-| **The abstract subject** | "Capture is…", "Adoption would…", "The export is…"                | Find the actor; make it the subject                   |
-| **Balanced antithesis**  | "A is X because Y; B is Z, so W" — three times in a paragraph     | Fine when both halves carry facts; suspicious in bulk |
-| **Unpriced tradeoff**    | "costs a serializer", "doesn't scale"                             | Give the number, or the mechanism that produces it    |
-| **Unearned adjective**   | robust, first-class, ergonomic, principled                        | Delete, or replace with the fact                      |
-| **Orphan instance**      | one specific record type dropped into a general section           | Move it to where instances belong, or label it        |
-| **Deliberation residue** | what you considered, in the order you considered it               | Keep the conclusion and the reason; drop the search   |
-| **Altitude drift**       | section titled "Stack" arguing design philosophy                  | Read the heading, then the paragraph — same level?    |
-
-Deliberation residue and altitude drift are the two that survive every
-word-level cleanup, so check them explicitly. Write in the order the reader
-needs, not the order you figured it out in.
+A word-level cleanup does not catch a narrated search or a paragraph at the
+wrong level of detail, so the agent reads each heading against its paragraph,
+cuts the search by hand, and writes in the order the reader needs, not the order
+the agent figured it out.
 
 ## What the reader needs, per medium
 
-Ask first: who reads this, and what are they about to do with it?
+The agent asks who reads this and what they will do with it.
 
-- **Design doc / ADR.** The reader is deciding whether to agree, or building
-  from it. Goal, constraints, the concrete choice, why the constraints force it,
-  what is deferred. Not a defense of the choice.
-- **Product spec.** The reader is checking what the user gets — before the build
-  as the brief, after it as the acceptance test. The problem and for whom, the
-  solution in plain English, the common behavior and its error classes, the
-  interaction (commands, config, flow). The constraint-forced choice above
-  belongs to the design doc, not here; structure rules live in
-  `writing-documentation`.
-- **PR description.** The reader is reviewing. What changed in the code, what
-  problem it fixes, what to look at hardest, how to verify it. Not "improves
-  ergonomics of the retry path".
-- **rustdoc / docstring.** The reader is calling this function right now. What
-  it does, what it takes, what it returns, when it fails or panics, ordering and
-  edge behavior, one example. Not "a robust abstraction over the session store".
-- **Issue reply / review comment.** The reader wants an answer. The answer, the
-  evidence for it, the next action. Lead with the answer.
-- **Commit message.** What changed and why, in terms the person running
-  `git log` in a year can use.
+- **Design doc or ADR.** Goal, constraints, the concrete choice, why the
+  constraints force it, what is deferred. Not a defense: the reader is deciding
+  whether to agree, or building.
+- **Product spec.** The problem and for whom, the solution in plain English, the
+  common behavior and its error classes, the interaction (commands, config,
+  flow). The constraint-forced choice belongs to the design doc;
+  `writing-documentation/SKILL.md`, Specs, states shape, size and non-goals.
+- **PR description.** What changed in the code, what problem it fixes, what to
+  look at hardest, how to verify it. Not "improves ergonomics of the retry
+  path".
+- **Rustdoc or docstring.** What it does, what it takes, what it returns, when
+  it fails or panics, ordering and edge behavior, one example. Not "a robust
+  abstraction over the session store".
+- **Issue reply or review comment.** Answer, then evidence, then next action.
+- **Commit message.** What changed and why, usable by someone running `git log`
+  in a year.
 - **Status report.** What is done, what is not, what is blocked and on whom.
-  Progress adjectives ("solid progress", "mostly there") say nothing.
+  "Solid progress" and "mostly there" say nothing.
 
 ## Before you finish
 
-A five-step pass over any draft:
+The agent runs nine steps on the finished draft:
 
-1. Look at each sentence's subject. Not a person, program, file, or command?
-   Rewrite it.
+1. Look at each sentence's subject. If it is not a program, a person, a file, a
+   command, a request, rewrite it.
 2. Mark each claim as fact or verdict. Every verdict needs an adjacent fact.
-3. Find the constraints. If the text says what you chose but not what forced it,
-   add it.
-4. Read each heading, then its paragraph. Same altitude?
-5. For each fact you added, ask whether this document owns it. If another doc
+3. Find the constraints. If the text says the choice but not what forced it, add
+   what forced it.
+4. Read each heading, then its paragraph, and check they are at the same level
+   of detail (`writing-documentation/SKILL.md`, Three questions, not three
+   files).
+5. For each fact added, ask whether this document owns it. If another document
    does, replace the explanation with a cross-reference.
-6. Run the word check — see `dejargon` below. Every test above passes sentences
-   built on metaphor, so this is a separate pass, not a side effect.
-7. Grep your own absolutes — "exactly", "only", "never", "the one" — and read
-   each against everything else said about the same thing, in this document and
-   its siblings.
-8. If you deleted or corrected a claim, grep for the documents that cite it. A
-   corrected claim with stale citers is a new contradiction you just made.
+6. Run the dejargon word check as a separate pass; every test here passes
+   sentences built on metaphor.
+7. Grep the draft's absolutes ("exactly", "only", "never", "the one") and read
+   each against everything else said about the same thing here and in the
+   siblings.
+8. After deleting or correcting a claim, grep for the documents that cite it
+   (`writing/references/fixing-a-corpus.md`, When a decision deletes a claim,
+   fix its citers).
 9. Run the disagreement test on the whole piece.
 
 ## Calibration
 
-**Concrete is not longer.** The rewrite above is the same length as the
-original. You are replacing verdicts with facts, not padding. If a section grows
-by more than about half again, something other than precision is happening —
-usually facts that belong to a neighbouring document.
-
-**Concrete is not remedial.** Specific means naming the actual thing, not
-explaining what an object store is to people who ship them.
-
-**Shared vocabulary is allowed once it passes the coined-term test.** A real
-external term, or one defined in the context where it is used, is a name and not
-a metaphor. Use it. But a term's presence in the project's own code or printed
-output does not make it a name — run the decode test
-([Coined terms](#coined-terms)). The failure is compression against a prior the
-reader does not have — not compression as such.
-
-**Do not rewrite the user's own words back at them.** Answer what they asked;
-apply this to your own prose.
+- The agent aims for the same length as the original; a section that grows past
+  about half again is taking on facts a neighbouring document owns
+  (`writing/references/fixing-a-corpus.md`, Expect expansion, and give a
+  number).
+- The agent names the actual thing; it does not explain what an object store is
+  to people who ship them.
+- The agent keeps a project term when it is an external term or defined where
+  the reader meets it.
+- A short sentence is fine when the reader can expand it from what is on the
+  page; it fails when expanding it needs the conversation the reader took no
+  part in.
+- The agent does not rewrite the user's own words back at them; it answers the
+  question and applies this skill to its own prose (`dejargon/SKILL.md`,
+  Boundaries).
 
 ## Repairing an existing corpus
 
-Everything above is about writing a document. Repairing a set of documents
-someone else already wrote is a different job with its own failure modes —
-scoring without priming the scorers, keeping the rewriting agent away from the
-prose it is replacing, marking what is undecided instead of inventing it, and
-handing the author the decisions the vague prose was concealing.
-
-Read [references/fixing-a-corpus.md](references/fixing-a-corpus.md) when the
-task is a doc set, a spec tree, a handbook or a wiki rather than one document.
-Not needed for ordinary writing; skip it unless you are repairing at scale.
+When the task is a doc set, a spec tree, a handbook or a wiki, the agent reads
+`writing/references/fixing-a-corpus.md` first. It covers scoring without priming
+the scorers, keeping the rewriting agent away from the prose it replaces,
+marking what is undecided instead of inventing it, and handing the author the
+decisions the vague prose concealed.
 
 ## Related skills
 
-- `dejargon` — the word level: vague mechanical metaphors (gate, leg, pin,
-  load-bearing, surface, mint, ride) swapped for the concrete actor and
-  mechanism. Its list does not cover abstract **verbs and adjectives** that name
-  a change or a quality without naming what changed or what provides it —
-  _converge, materialize, reconcile, durable, doctrine_. Those pass both skills:
-  the sentence has an actor and a verb, and the word is not a mechanical
-  metaphor. Watch for them yourself. Its project-vocabulary boundary (a term the
-  project's code or output prints is a name — keep it) is also overruled by the
-  [Coined terms](#coined-terms) test here: code usage does not grandfather
-  prose, it marks more text to sweep. **The two skills do not substitute for
-  each other in either direction, and you must run both.** Text passes dejargon
-  cleanly and is still pure verdict; text passes every test in this skill —
-  naming actors, arguable, buildable-from — and is still built on metaphor.
-  Measured on one corpus: a rewrite done to this standard alone left 60 banned
-  and watchlist words standing across 14 documents, 7 of them `gate`, some in
-  sentences written during that very rewrite.
-- `slop-clean` — removing session sediment (dates, provenance, verification
-  narration) from text already committed.
+- **dejargon** works at the word level: it swaps vague mechanical metaphors
+  (gate, leg, pin, load-bearing, surface, mint, ride) for the concrete actor and
+  mechanism (`dejargon/SKILL.md`, The banned words and The watchlist).
+- **Both skills run.** Text can pass dejargon and be pure verdict; text can pass
+  every test here and be built on metaphor.
+- **Words that pass both:** abstract verbs, adjectives and nouns that name a
+  change or quality without naming what changed or what provides it (converge,
+  materialize, reconcile, durable, doctrine). The agent watches for them.
+- **slop-clean** removes dates, provenance and verification narration from text
+  under source control (`slop-clean/SKILL.md`, Pass 1).

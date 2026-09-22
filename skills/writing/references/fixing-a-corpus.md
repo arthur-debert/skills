@@ -1,221 +1,213 @@
 # Fixing a corpus
 
-How to run a session that repairs an existing set of documents, rather than
-writing one. Read this when someone asks you to clean up a doc set, a spec tree,
-a handbook, or a wiki — not when you are writing a single document.
-
-The short version: the writing is the visible problem and the missing decisions
-are the real one. Plan for the second from the start.
+An orchestrator asked to repair a doc set, a spec tree, a handbook or a wiki
+runs a campaign over the corpus, the documents plus code comments, docstrings,
+CLI help strings, READMEs, commit templates and skill files, with agents:
+scorers score every file, stage 1 writes a fact sheet per flagged file, stage 2
+rewrites from the sheet, stages 3 and 4 check, and the orchestrator hands the
+author `DECISIONS-NEEDED.txt`. Not yet decided: whether the scorers score code
+files as well as documents.
 
 ## Two modes
 
-Pick the campaign's shape before anything else.
+Pipeline mode
+([Separate the reader from the writer](#separate-the-reader-from-the-writer)):
+the author is absent or slow, the corpus is large or mixed-voice, and the rule
+set does not change while a sweep runs. Not yet decided: whether a rule added to
+`decisions.txt` from an answer re-runs the sweep on files already swept, or
+applies only to files not yet swept.
 
-**The pipeline mode** — score, interrogate, rewrite, check, with the reader
-separated from the writer — is what most of this document describes. Use it when
-the author is absent or slow to respond, the corpus is large or mixed-voice, and
-the standard being applied is already settled.
+Calibration-sample mode: the author is present, the corpus is one voice, the
+rule set is not yet fixed.
 
-**The calibration-sample mode** is cheaper and fits the opposite case: the
-author is present and responsive, the corpus is one voice, and the standard
-itself is still being worked out. Pick one document and present **findings, not
-edits** — quote, defect, proposed fix. Let the author correct your judgment over
-a round or two: what you over-flagged, what you missed, what rule they actually
-hold. Their corrections are the deliverable of those rounds — **write each one
-down as an explicit rule before touching a second document**, then sweep the
-rest of the corpus with the accreted ruleset. Relayed conversationally instead
-of written down, the corrections soften and the sweep drifts back to your first
-calibration.
+1. Pick one document.
+2. Hand the author findings, not edits: `QUOTE` / `DEFECT` / `REPLACE WITH`.
+3. Take their corrections over one or two rounds.
+4. Write each correction into `decisions.txt` as a numbered rule before opening
+   a second document. An agent started after the correction reads
+   `decisions.txt`, not the conversation it was given in; relayed in
+   conversation, a correction softens and the sweep drifts back to the first
+   calibration.
+5. Sweep the rest of the corpus with that rule set.
 
-The modes compose: a calibration sample can settle the standard that a pipeline
-campaign then applies at scale.
+The orchestrator can run calibration and then the pipeline in one campaign:
+`decisions.txt` holds the calibration's rules first, then the rules for the
+pipeline sweep, in one numbered list.
+
+Not yet decided: which file is the rule set, `writing/SKILL.md` alone, SKILL.md
+plus `decisions.txt`, or a per-campaign brief.
 
 ## Do not blanket-rewrite
 
-Score first. A corpus that reads uniformly bad is usually not uniformly bad, and
-rewriting sound documents damages them. Score every document, then rewrite only
-what scores badly. On one 25-document corpus the sectional flags covered about
-17% of sections; a blanket pass would have degraded eleven documents to fix
-twenty-one sections.
+The scorers score every file; only a document scored `rewrite` goes through
+stages 1 to 4, where stage 2 replaces every sentence from the fact sheet and the
+text grows toward the half-again limit.
+
+- Reads: every file.
+- Writes: `triage.tsv`, one row per file, and `score/<group>/<doc>.findings.md`:
+  per finding `FILE`, `SECTION`, `QUOTE` (at most three lines), `DEFECT` (at
+  most ten words), `REPLACE WITH` (a fact with file:line, or `TBD: <question>`);
+  last line
+  `SCORE: <score>  FLAGGED: <n>  TERMS: <coined terms with sense counts>`. Not
+  yet decided: whether the scores are two, sound and rewrite, or three, with a
+  patch outcome whose findings are applied in place.
+- Must not: edit outside the score directory, write paragraphs, judge style in
+  general.
 
 ## Do not tell the scorers what you expect
 
-The single largest error available to you. If you have read some of the corpus
-and formed impressions, keep them out of the briefs. Priming a scorer with
-"document X is largely sound, be sceptical of your impulse to flag it" reliably
-produces a pass. On the corpus above, eleven documents passed a primed first
-round; re-scored with neutral briefs, **all eleven failed**, two badly enough to
-need full rewrites. Your impressions are a hypothesis, not a prior to hand out.
+A scoring brief names the tests, SKILL.md's
+[Three tests](../SKILL.md#three-tests) onward, and no file. Do not write into
+the brief which documents you expect to pass or fail; the scores test that
+expectation as a hypothesis.
 
 ## Two signals, and expect them to disagree
 
-Run a cheap deterministic pass (grep for the vocabulary you distrust) alongside
-the judgment pass. Do not trust the cheap one. Measured on that corpus, lexical
-tell-density was **anti-correlated** with the defect: documents scoring worst on
-word-level measures were judged sound, and the cleanest document by word counts
-needed the most work.
-
-The reason is worth knowing. Dense, confident, aphoristic prose co-occurs with
-having actually thought something through. Documents that score low on jargon
-often score low because they assert nothing — there is no metaphor to flag
-because there is no claim. Word-level tools cannot find that.
+Run a grep for the words you distrust beside the scorers' pass and write the
+counts per file to `.rewrite/`. Not yet decided: the counts file's name. The
+grep does not decide what gets rewritten: a document that asserts nothing has no
+metaphor to flag, and a document with a high count can score `sound`, because
+dense confident prose co-occurs with an author who has thought the thing
+through.
 
 ## Separate the reader from the writer
 
-The disease is in-context imitation: an agent that reads a page of bad prose and
-is then asked to write will match its register, because matching the surrounding
-style is what models do best and one instruction is weak against a page of
-counter-examples.
+An agent that reads a page of prose and then writes imitates it; one instruction
+does not outweigh a page of counter-examples. The writer never reads the
+original body.
 
-So the agent that writes should see as little of the original prose as possible.
-Structure it as:
+| Stage            | Reads                                                                      | Writes                                     | Must not                                         |
+| ---------------- | -------------------------------------------------------------------------- | ------------------------------------------ | ------------------------------------------------ |
+| 1 Interrogate    | document, findings, `decisions.txt`, the code and data described, siblings | `facts/<doc>.facts.txt`                    | criticise; write paragraphs                      |
+| 2 Rewrite        | fact sheet, rule set, approved exemplar, heading skeleton                  | `drafts/<doc>`                             | open the original, its history or earlier drafts |
+| 3 Check style    | rewrite only                                                               | style findings                             | read the fact sheet                              |
+| 4 Check fidelity | rewrite and fact sheet                                                     | every assertion the sheet does not support | read the original                                |
 
-1. **Interrogate** — reads the document, its siblings, and the code. Emits a
-   fact sheet, not a critique.
-2. **Rewrite** — reads the fact sheet, the standard, an approved exemplar, and
-   the document's heading skeleton. Not the original body prose.
-3. **Check style** — sees only the rewrite.
-4. **Check fidelity** — sees the rewrite and the fact sheet, and asks only
-   whether anything is asserted that the sheet does not support.
+One agent cannot run stages 3 and 4: asked for both, it trades one against the
+other.
 
-Split style and fidelity. An agent asked both will trade one against the other.
+Not yet decided: who approves the exemplar, and at what path under `.rewrite/`
+it is stored.
 
 ## The intermediate must be a fact sheet, not a critique
 
-If the analyst emits criticism ("this paragraph asserts a verdict"), the
-rewriter has to read the original to apply it, and the contamination is back. If
-it emits **answers** — terse `Q / A / SRC file:line` fragments, or `TBD` — the
-rewriter can work without ever reading the bad prose.
-
-Force the schema hard. A bullet of actor/verb/constraint/source cannot carry
-verdict prose. If your analyst starts writing beautiful paragraphs, the pipeline
-is already reinfected.
+Stage 1 emits `Q` / `A` / `SRC file:line` fragments, or `TBD`, and no criticism,
+under `DOC`, `READER`, `HEADINGS`, `FACTS`, `TERMS`, `CONFLICT`, `TBD`,
+`OWNED ELSEWHERE`. A line such as "this paragraph asserts a verdict" makes the
+rewriter open the original to apply it and copy its prose. Paragraphs in the
+fact sheet mean stage 1 has failed; one actor, verb, constraint and source per
+line keeps verdicts out.
 
 ## Look for the facts before concluding they are missing
 
-Design corpora usually have a second tier — research notes, ADRs, decision logs,
-scratch documents — where the concrete reasoning was written down before being
-compressed away. Check it before marking anything undecided.
-
-One example from that corpus: a design doc said a data stream was authoritative
-"because it is the vendor's own machine contract", which is circular. The
-research note one directory away gave the real reason: a named telemetry
-convention had moved to a separate repository at a specific version so that it
-could change freely, so the stable choice was to parse the vendor's own output.
-Dated, versioned, checkable — and lost in compression. Most of what looks
-undecided is recoverable.
+Before stage 1 marks a claim `TBD`, it reads the research notes, ADRs, decision
+logs and scratch documents, where the reasoning sits before the main documents
+compress it away. Most of what looks undecided is recoverable there.
 
 ## Never invent a mechanism
 
-The rule that protects everything else. A rewriter told "be concrete", with a
-gap in front of it, will produce something plausible and wrong.
-
-- Anything undecided gets an explicit marker in the text, never smoothed over.
-- Mark it wrong and you cost the author ten seconds. Resolve it wrong and you
-  put a decision they never made into their design documents.
-- When unsure which it is, mark it.
-
-Watch yourself here too. When illustrating what good prose would look like, it
-is easy to supply a concrete detail that feels obviously right and is not in the
-corpus at all.
+Where the facts leave a gap, stage 2 writes a `TBD` marker at that point in the
+draft, and `DECISIONS-NEEDED.txt` gets an entry with file:line and the one
+question a human must answer. Not yet decided: whether stage 2 itself appends
+that entry. When unsure, mark: a wrong marker costs the author ten seconds; a
+wrong resolution puts a decision they never made into their documents. An
+illustration of what good prose would look like invents too: a detail that feels
+right is not in the corpus.
 
 ## Two kinds of contradiction
 
-- **Corpus-resolvable** — one statement is checkably wrong, or one word is doing
-  two jobs and the documents supply both meanings. Fix these; say which you did.
-- **Decision-requiring** — the author has not chosen. Mark both sides with
-  file:line, and leave the surrounding prose so it assumes neither.
-
-Do not resolve the second kind, including by picking the version that appears
-more often or reads better.
+Stage 1 writes a contradiction the corpus resolves, one statement checkably
+wrong or one word with two stated meanings, as a `Q` / `A` / `SRC file:line`
+line; stage 2 writes the answer, so the wrong statement does not survive. The
+tests are SKILL.md's
+[Two more tests](../SKILL.md#two-more-tests-once-the-document-has-neighbours)
+and [Coined terms](../SKILL.md#coined-terms). Not yet decided: where the fix is
+reported and by which stage. Stage 1 writes a contradiction the author has not
+decided as a `CONFLICT` line,
+`<document line>: says <x>; code/table at <src> does <y>`; stage 2 leaves the
+surrounding prose assuming neither side and never resolves it, not even by
+picking the more frequent or better-reading version.
 
 ## Everything goes to files
 
-Agent return values are a bad channel: they get lost, they are unverifiable
-later, and they fill the orchestrator's context. Have every stage write to disk
-and report one summary line.
+Each stage writes to disk and returns one summary line: `SCORE` lines from
+scoring, counts from stage 1. A return value exists only in the orchestrator's
+context and cannot be verified later; a file on disk is read by the next agent,
+survives a restart of the campaign, and lets the author inspect any stage.
+`.rewrite/` holds:
 
-```text
-.rewrite/
-  triage.tsv
-  facts/<doc>.facts.txt
-  drafts/<doc>
-  decisions.txt
-  DECISIONS-NEEDED.txt
-```
-
-This also makes the campaign resumable and lets the author inspect any stage.
+| File                              | Format                                                                                                                     |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `triage.tsv`                      | one row per file. Not yet decided: whether the columns are group, source, score, flagged, owner, findings.                 |
+| `score/<group>/<doc>.findings.md` | findings, as under [Do not blanket-rewrite](#do-not-blanket-rewrite)                                                       |
+| `facts/<doc>.facts.txt`           | the fact sheet                                                                                                             |
+| `drafts/<doc>`                    | the rewrite                                                                                                                |
+| `decisions.txt`                   | `D<n>. <rule>`, so a brief can say "apply D8 only"                                                                         |
+| `DECISIONS-NEEDED.txt`            | file:line plus the question. Not yet decided: whether the line is `<source path>:<line>  <question>  "<quoted sentence>"`. |
 
 ## Verify mechanically, not by impression
 
-Every correction you send should rest on a measurement:
+Four measurements check each draft before it is sent. Not yet decided: which
+stage or script runs them.
 
-- **Scope** — flagged sections rewritten, everything else byte-identical. Diff
-  proves it. Beware naive section-detection when nested headings are indented.
-- **Growth** — count words with marker text subtracted, so you can tell added
-  facts from added padding.
-- **Format** — whatever linter the corpus uses, as a gate on every draft.
-- **Vocabulary** — grep the banned list against the result, not against your
-  memory of the result.
+1. Scope: a diff shows only the flagged sections changed, every other byte
+   identical. Naive section detection breaks when nested headings are indented.
+   Not yet decided: which script finds the section boundaries. Not yet decided:
+   whether this applies only to documents patched in place, or how a draft
+   written from the fact sheet keeps unflagged sections identical.
+2. Growth: the draft's word count minus `TBD` marker text, against the original,
+   at most one and a half times the original.
+3. Format: the corpus linter on every draft; a failing draft is not sent.
+4. Vocabulary: dejargon's
+   [The banned words](../../dejargon/SKILL.md#the-banned-words) and
+   [The watchlist](../../dejargon/SKILL.md#the-watchlist), grepped against the
+   result file, not memory of it.
 
 ## Expect expansion, and give a number
 
-Every rule in the writing standard pushes toward adding; nothing pushes back.
-Expect every agent to over-expand, and put the limit in the brief up front: **if
-a section grows by more than about half again, something other than precision is
-happening.** Stating this in advance cut the over-expansion rate from seven
-agents out of seven to zero.
-
-The usual cause is not padding but misplacement — correct facts, correctly
-sourced, in a document that should have cross-referenced their owner.
+The rewrite brief states the limit up front: at most one and a half times the
+original word count. SKILL.md's [Calibration](../SKILL.md#calibration) and
+[Whose fact is it?](../SKILL.md#whose-fact-is-it) state the limit and why
+rewrites grow.
 
 ## Batch questions for the author, and record the answers
 
-The author is the only source for genuinely undecided things, and their time is
-the scarce resource. Collect markers into one list with file:line and hand it
-over as a single document.
-
-When they answer, write the answers to a decisions file and pass **that** to the
-agents as authoritative input. Do not relay decisions conversationally; they get
-softened. Number them so a later brief can say "apply D8 only".
-
-Expect answers to arrive as explanations rather than rulings, and expect a good
-answer to generate a new, sharper question — that is the sign it was specific
-enough to be useful.
+Hand the author `DECISIONS-NEEDED.txt`, every entry with file:line in one
+document; the author is the only source for undecided things, and their time is
+the scarce input. Write the answers into `decisions.txt`, numbered, and pass
+that file to the agents ("Apply D1, D2, D6 and D9"). An answer arrives as an
+explanation; write the rule it implies into `decisions.txt` as `D<n>`, and put
+any question the explanation leaves open back into `DECISIONS-NEEDED.txt`. Never
+relay an answer in conversation, where it softens.
 
 ## When a decision deletes a claim, fix its citers
 
-A corrected claim with stale citers is a new contradiction you just made. After
-any deletion, grep for documents citing the deleted statement. They will be
-citing the document you just fixed, as authority for something it no longer
-says.
+After a decision deletes or corrects a claim, grep the corpus for documents that
+cite the old statement, and fix them. SKILL.md's
+[Before you finish](../SKILL.md#before-you-finish), step 8, states the rule.
 
 ## The corpus is everything agents ingest
 
-The doc set is not the boundary of the disease. The same dialect lives in code
-comments, docstrings, CLI help strings, READMEs, commit templates, and skill
-files — exactly the channels future agents read — and a swept doc set gets
-reinfected from whatever text was left unswept, because the next agent imitates
-whichever register it ingests. Sweep them all, under each surface's own editing
-regime: prose freely, comments and help strings as text changes, identifier and
-file renames as code changes verified by the test suite.
+The sweep covers every file in the corpus, code included; the next agent
+imitates whatever it reads, so a swept doc set is reinfected from any text left
+unswept. slop-clean's
+[Surfaces and their editing regimes](../../slop-clean/SKILL.md#surfaces-and-their-editing-regimes)
+states the editable span per file kind; identifier and file renames are code
+changes run through the test suite. A term the project's code prints is not
+exempt: SKILL.md's [Coined terms](../SKILL.md#coined-terms) overrules dejargon's
+project-vocabulary rule.
 
 ## Let agents refuse you
 
-Brief them so that the standard outranks your instruction, and expect the good
-ones to decline. On that corpus, two agents refused parts of a decision I passed
-down: one because asserting it would contradict a closed enumeration in a
-sibling document, one because the statement belonged to a different document
-under the ownership test. Both were right and I was not. An agent that applies
-everything you say uncritically will introduce contradictions at your speed.
+The rule set outranks the orchestrator's instruction. An agent declines one that
+would contradict a closed enumeration in a sibling document, or place a fact in
+a document that does not own it under
+[Whose fact is it?](../SKILL.md#whose-fact-is-it). An agent that applies every
+instruction uncritically introduces contradictions at the orchestrator's speed.
 
 ## What the campaign actually produces
 
-Two artifacts, and the second is usually worth more:
-
-1. The rewritten corpus.
-2. **A list of decisions that were never made.** Vague prose conceals absent
-   decisions — a sentence that asserts nothing checkable cannot be noticed as
-   missing an answer. Expect this list to be long, expect it to include things
-   the author will not recognise as ever having been decided, and expect to work
-   it with them rather than closing it yourself.
+The campaign produces the rewritten corpus and `DECISIONS-NEEDED.txt`. The
+orchestrator works `DECISIONS-NEEDED.txt` with the author entry by entry, since
+an entry may name a choice the author did not know they had made; the author
+answers each one.

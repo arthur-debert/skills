@@ -125,7 +125,7 @@ survived), **mint / ride / hydrate** (create, use the same path as, populate).
   banned word that appears inside an accurate, concrete sentence is a smaller
   sin than a vague sentence with no banned words.
 
-## Sweep mode
+## Search and rewrite a target
 
 When invoked explicitly on a target (a file, directory, or diff — e.g.
 `/dejargon docs/` or "de-jargon this PR description"):

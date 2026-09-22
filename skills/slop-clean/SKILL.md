@@ -10,196 +10,178 @@ description:
 
 # Slop Clean
 
-Perform a cleanup in three passes, followed by an information-boundary review.
-Preserve text that explains purpose, design, trade-offs, usage, or genuinely
-non-obvious behavior.
+The agent removes from committed files the text recording the session that
+produced the code: dates, tracker tags, who requested or reviewed a change, what
+ran to verify it, implementation chronology, and rationale repeated where one
+site with a pointer serves. Executable behavior does not change. Text explaining
+purpose, design, trade-offs, usage, or behavior the code does not make obvious
+stays.
 
-## Surfaces and their editing regimes
+## File kinds and what may change in each
 
-The disease is one — session scaffolding persisted as if it were the design —
-but the editable span depends on the surface:
+- Source or test file: language-recognized comments, documentation comments,
+  docstrings. Never executable code.
+- Prose document (markdown, lex, rst, README): the whole file. Delete dates, "as
+  of", "currently", "previously", "we decided/verified", surveys, verification
+  runs and chronology; rewrite the remainder in present tense.
+- Script or config file: comments only. Never commands, values, or keys.
 
-- Code files (source, tests): language-recognized comments, documentation
-  comments, and docstrings only. Never executable code.
-- Prose documents (markdown, lex, rst, standalone docs, READMEs): the whole file
-  is editable. Apply timeless register: present tense, no dates, no "as of /
-  currently / previously", no process or session narration, no verification
-  story. Only the model survives.
-- Scripts and config: comments only; never commands, values, or keys.
+A survey, inventory, verification run, or chronology anywhere is deleted; its
+conclusion stays as a present-tense fact.
 
-The universal law: session evidence — surveys, inventories, verification runs,
-chronology — is never persisted under source control. Only its consequences are,
-stated as present-tense facts.
+## 1. Set scope and invariants
 
-## Establish scope and invariants
+1. Scope: the path the user named; else maintained source and tests, minus
+   generated, vendored, and third-party files.
+2. First read the repository's instructions; learn its languages, comment
+   syntaxes, validation commands, version-control state, and delivery workflow.
+3. Never edit identifiers, types, signatures, executable code, test logic,
+   string literals, or documentation inside strings; embedded source in a string
+   literal changes only when the user separately authorizes that. In source,
+   test, script and config files, text not classifiable as a comment stays.
+4. Legal, license, attribution, and compliance text stays.
+5. A comment feeding generated documentation, a package, a source map, or a
+   schema: before editing, write down what must stay true of that output. Not
+   yet decided: which properties, recorded where.
+6. A formatter or bulk rewrite may not change non-comment text.
+7. Metaphor words in kept text: `dejargon`.
 
-1. Use the user's path or component as the scope. Otherwise cover maintained
-   source and tests, excluding generated, vendored, and third-party files.
-2. Read repository instructions before editing. Discover the languages, comment
-   syntaxes, validation commands, version-control state, and delivery workflow
-   from the repository itself.
-3. Treat only language-recognized comments, documentation comments, and
-   docstrings as editable. Do not edit identifiers, types, signatures,
-   executable code, test logic, string literals, or documentation embedded in
-   strings. If unsure whether text is a comment, leave it unchanged.
-4. Preserve legal, license, attribution, and compliance text.
-5. Determine whether comments feed generated documentation, packaged artifacts,
-   source maps, schemas, or other distributed output. Establish those output
-   invariants before editing.
-6. Preserve unrelated work. Do not let a formatter or bulk rewrite modify
-   non-comment text.
+## 2. Survey and partition the work
 
-The completion criterion is strict: every changed span sits inside its surface's
-editable regime, every retained comment or sentence has a clear informational
-job, and the repository's relevant checks pass.
+Read the repository's tracker and tag naming and search with those terms for:
+issue, pull-request, milestone, workstream, and ticket references; agent or
+prompt narration and implementation-history play-by-play; TODOs with tracking
+metadata; repeated distinctive explanations; comments paraphrasing the adjacent
+declaration, branch, validation, or error; comment-heavy files.
 
-## Survey and partition the work
+Comment density only orders inspection; read every match in context first.
+`rustloc count --by-file --ordering docs` ranks files by comment volume (the
+other flags and the `tokei`, `cloc`, and `wc -l` fallbacks: `loc-refactor`).
 
-Derive the repository's actual process vocabulary instead of assuming one
-tracker or tag format. Search for:
+Several agents: non-overlapping paths, one branch, one PR. Each worker gets an
+exclusive path scope, this SKILL.md, and the repository's instructions; touches
+nothing outside it; stages and commits nothing; reports files inspected
+(including unchanged), removed, and kept. One coordinator reads the assembled
+diff, validates, and commits; whether a PR is opened follows the repository's
+delivery workflow. Repository instructions requiring separate worktrees,
+branches, or PRs win.
 
-- issue, pull-request, milestone, workstream, and ticket provenance;
-- agent or prompt narration and implementation-history play-by-play;
-- TODOs coupled to tracking metadata;
-- repeated distinctive explanations;
-- comments that paraphrase the adjacent declaration, branch, validation, or
-  error;
-- unusually comment-heavy files and modules.
+## 3. Pass 1: remove the record of the session
 
-Inspect matches in context before editing. Comment density is triage evidence,
-not proof of bloat. Use language-aware tools where available; otherwise combine
-text search with manual review.
+Delete text whose only content is who requested, implemented, reviewed, or
+tracked a change:
 
-When `rustloc` supports the repository's language, its `--by-file`,
-`--by-module`, `--ordering docs`, `--top`, and `--output json` options can help
-prioritize inspection. It is optional and does not replace judgment.
+- Tracking tag: delete, repair punctuation.
+- Ticket bookkeeping on a TODO: delete the bookkeeping; the TODO stays.
+- Agent reasoning, prompt narration, build-history commentary: delete.
+- Implementation chronology whose constraint applies to the code: one
+  present-tense sentence stating the constraint.
+- In prose, dates, "as of", "currently", "previously", "we decided/verified":
+  delete; a remainder stating a constraint the code depends on becomes present
+  tense, undated.
 
-If the scope warrants parallel work and delegation is authorized, partition it
-by non-overlapping files or directories on one integration branch and PR:
+Keep decision records, specifications, standards, stable API references, and
+documentation links. A tracker link that alone explains a non-obvious constraint
+stays. Not yet decided: which reference kinds may replace it.
 
-1. Assign one coordinator to own the combined diff, validation, commit, and PR.
-2. Give each agent an exclusive path scope plus this rubric and the repository
-   guardrails.
-3. Forbid agents from formatting unrelated files, staging, committing, or
-   editing outside their scope.
-4. Have each agent report files inspected, including intentionally unchanged
-   files, and summarize what it removed and preserved.
-5. Independently audit the assembled diff before delivery.
+For text narrating the session that produced the code, apply the
+`writing-documentation` section "No task residue"; for text recording
+deliberation, apply the `writing` section "Tells".
 
-Avoid overlapping scopes and concurrent repository-wide formatters. If
-repository instructions require isolated trees, branches, or PRs, follow them
-instead of forcing the shared-PR pattern.
+Then reread the diff, rerun the step 2 searches; every remaining match is on the
+keep list (decision records, specifications, standards, stable API references,
+documentation links). Not yet decided: whether matches outside it may stay.
 
-## Pass 1: remove process sediment
+## 4. Pass 2: one site for each explanation
 
-Remove metadata whose only value is recording who requested, implemented,
-reviewed, or tracked a change:
+Merge only explanations with the same meaning, grouped by idea, not wording.
 
-- delete tracking tags and repair punctuation;
-- keep a useful TODO but remove its ticket bookkeeping;
-- replace implementation chronology with a present-tense constraint only when
-  the constraint remains useful;
-- remove agent reasoning, prompt narration, and build-history commentary;
-- in prose docs, remove temporal and provenance language (dates, "as of",
-  "currently", "previously", "we decided/verified"), rewriting any load-bearing
-  remainder as a timeless statement.
+- Full rationale: at the defining type, function, module, subsystem overview, or
+  design document.
+- Other sites: local information plus, when readers need the full explanation, a
+  pointer (intra-doc link, documentation symbol reference, `@see`, stable
+  document link). No `@see` where the doc tool will not resolve it.
+- No lasting site, and the explanation needed at each decision point: it stays
+  at each.
+- Pointer farther from the reader than the duplicated sentence: the duplicate
+  stays. Not yet decided: the distance (file, module, crate, repository) that
+  counts as farther.
 
-Preserve decision records, specifications, standards, stable API references, and
-documentation links. If a tracker link is the only source for a non-obvious
-constraint, keep it or replace it with a canonical durable reference.
+Example: `crop` and `resize` each have the docstring "Coordinates use a top-left
+origin." After: one module docstring "Image operations use a top-left coordinate
+origin." and no per-function docstring.
 
-Review the diff and rerun the candidate searches. Every remaining process-like
-match must be intentionally durable.
+Prose cross-references: `writing` ("Whose fact is it?"), `writing-documentation`
+("Detail flows down, decisions don't flow up").
 
-## Pass 2: establish one owner for each explanation
+## 5. Pass 3: remove self-evident narration
 
-Consolidate only explanations that carry the same meaning:
+Novelty test: if the code, identifier, type, signature, or the adjacent control
+flow says the same thing, delete the comment.
 
-1. Group near-duplicates by idea, not merely by similar wording.
-2. Choose the defining type, function, module, subsystem overview, or design
-   document as the canonical source.
-3. Keep the complete rationale there.
-4. At other sites, retain only local information. Add a short,
-   language-appropriate pointer when readers genuinely need the canonical
-   explanation.
-5. If no durable target exists and the explanation is necessary at each decision
-   point, keep it.
+Delete: comments restating a field's type or a parameter's name; prose versions
+of the next if, loop, allocation, conversion, or error return; states the type
+system excludes; test comments narrating setup, action, assertion; error-variant
+prose repeating the variant name and fields.
 
-Use the ecosystem's normal reference mechanism: an intra-doc link, documentation
-symbol reference, `@see`, or stable document link. Do not introduce `@see` where
-the language's documentation system will not resolve or render it.
+Keep: why a check exists, why a tempting alternative is wrong, a rule callers
+must follow that the signature does not show, a numerical or concurrency hazard,
+wire-format compatibility, a platform quirk, a subtle edge case.
 
-Review each consolidation while its context is fresh. A pointer is not useful if
-it sends the reader farther away than the duplicated sentence would.
+Examples (full text in examples/comment-quality.md):
 
-## Pass 3: remove self-evident narration
+- Two comment lines saying
+  `if band.image.color.width != band.full_width { return Err(...) }` avoids an
+  out-of-bounds: deleted.
+- Three doc lines on `ZeroDimension` about later methods assuming non-zero size:
+  `/// Zero is not a valid width or height.` One enum doc line when every
+  variant has the same defensive reason.
+- `/** The unique user ID as a string. */` on `userId: string`: deleted; a
+  replacement would say what the type cannot (stability across reconnects).
+- A Go comment above `registry.Unlock()` then `compiler.Compile(input)` giving
+  the re-entrancy reason for the order: kept.
+- A `//` line inside `const SHADER: &str = r#"..."#` is WGSL source, not a
+  comment: untouched unless the user authorizes edits to the embedded source.
 
-Apply the **novelty test**: if the code, identifier, type, signature, or
-immediately adjacent control flow already says the same thing, delete the
-comment.
+## 6. Review what each module's documentation covers
 
-Typical removals include:
+Apply to every substantial comment left after pass 3 (not yet decided: which
+comments count as substantial):
 
-- comments that restate a field's type or a parameter's name;
-- prose versions of the next `if`, loop, allocation, conversion, or error
-  return;
-- documentation that explains an impossible state already excluded by the type
-  system or type hints;
-- test comments that narrate setup, action, and assertion without adding intent;
-- verbose error-variant prose whose only message is the variant name and fields.
+- A module's documentation describes its own purpose and the rules callers must
+  follow, never its parent.
+- It lists siblings or children only as a short map of one small group (an
+  `operations` overview may list `add` and `remove`, without internals) and
+  stops once the map needs its own guide. Not yet decided: the child count past
+  which listing stops.
+- A repository- or subsystem-wide convention is written once at that level, not
+  beside each function following it.
+- A leaf may point to the full explanation, not repeat it.
+- Public API docs explain usage and rules the signature and types do not show.
 
-Do not confuse brevity with clarity. Keep information the code does not carry:
-why a check exists, why a tempting alternative is wrong, a surprising contract,
-a numerical or concurrency hazard, wire-format compatibility, a platform quirk,
-or a subtle edge case.
+Documentation worth keeping:
 
-## Review information boundaries
-
-Apply the **ownership test** to every substantial surviving comment:
-
-- A module documents its own purpose and contract, never its parent.
-- It documents siblings or children only as a compact map of one small, cohesive
-  logical unit. Larger components own their own documentation.
-- A repository- or subsystem-wide convention belongs at that boundary, not
-  beside every variable or function that follows it.
-- A leaf may point to the canonical explanation but must not repeat it.
-- Public API documentation should explain caller-visible usage and contracts
-  that signatures and types do not express.
-
-Examples of worthwhile documentation:
-
-- architectural responsibility, design rationale, and trade-offs;
+- architectural responsibility, design rationale and trade-offs;
 - a high-level overview of a module, subsystem, or public API;
 - usage constraints not evident from the signature;
-- tricky behavior, edge cases, safety conditions, and interoperability details.
+- tricky behavior, edge cases, safety conditions, interoperability details.
 
-If a classification is ambiguous or calibration would help, read
-[examples/comment-quality.md](examples/comment-quality.md). The examples are
-diagnostic contrasts, not text templates.
+Prose: `writing-documentation` ("Detail flows down, decisions don't flow up").
+Hard cases: examples/comment-quality.md.
 
-## Verify and deliver
+## 7. Verify and deliver
 
-Run the build, lint, documentation, and test commands relevant to the scope.
-Prefer check-only formatting commands; if formatting is required, audit and
-exclude every non-comment change it produces.
-
-Independently inspect the final diff and confirm:
-
-- only comments or docstrings changed;
-- comments inside strings, templates, generated code, and embedded languages
-  remain untouched;
-- every process-noise search result is intentionally durable;
-- every shared explanation has one canonical owner and only useful pointers
-  elsewhere;
-- every surviving comment passes the novelty and ownership tests;
-- generated and distributed outputs satisfy the established invariants;
-- executable behavior is unchanged.
-
-Report intentional changes to rendered or distributed documentation. If a
-comments-only edit cannot satisfy an output invariant, stop and report the
-conflict instead of widening scope.
-
-If checks are unavailable, state exactly what could not run. Keep coherent
-passes separate in commits when that aids review, but do not force empty or
-artificial commits. Follow the repository's delivery workflow; do not assume a
-hosting system, delegation model, or permission to publish.
+1. Run the scope's build, lint, documentation, and test commands. Formatting
+   runs check-only; a formatter that must write has every non-comment change
+   removed.
+2. Confirm on the final diff that steps 1 to 6 hold: only editable spans
+   changed, strings and embedded languages untouched, generated outputs as
+   recorded, behavior unchanged.
+3. Report intended changes to rendered or distributed documentation. If a
+   comments-only edit cannot keep a generated output as recorded, stop and
+   report.
+4. If a check cannot run, state which.
+5. A single agent commits once per pass when that helps review; a coordinator
+   commits the assembled diff. No forced empty commits. Follow the repository's
+   delivery workflow; assume no hosting system, delegation model, or permission
+   to publish.

@@ -15,154 +15,162 @@ description:
 
 # Interface-First
 
-**Vertical slices are the default.** A workstream is a thin, complete path
-through every layer, demoable on its own, and the epic opens with a walking
-skeleton. That rule holds; this skill is the one exception to it.
+An interface workstream is one pull request holding the feature's types, schemas
+and public signatures with every function body stubbed, merged before any pull
+request that holds a body. Section "10. Decomposition" of
+`docs/430-handbook-planning.lex` in the edward-legacy repository (lines 128-132)
+sizes a workstream as one reviewable pull request built as a vertical slice,
+makes the walking skeleton the first workstream, and, when the interface is the
+risk, merges the interface first in its own workstream with every body stubbed,
+then the skeleton, then the slices. Section "7. Across Repos" of the same
+repository's `docs/440-handbook-epics.lex` (lines 59-73) covers an interface
+shared by two repos.
 
-The exception: **when the interface is the risk, it lands first, in its own
-workstream, stubbed** — the types, the schemas, the public signatures, with no
-behavior behind them. The implementation follows in the vertical slices after
-it.
+A reviewer of a diff that holds only types and signatures reads the data model,
+the signatures and the module layout, because the diff holds nothing else.
+Workstreams that start after that diff merges build against one set of types;
+line 136 of the 430 handbook gives the reason: "Whatever they share is what they
+drift on."
 
-Two payoffs, and both are lost if the interface arrives mixed into an
-implementation:
+## When to create an interface workstream
 
-- **The design gets an undivided review.** A reviewer reading an interface-only
-  diff evaluates the data model, the signatures, and the module layout, with
-  nothing else competing for attention. Mix in implementation and the reviewer
-  reads the implementation — the shape gets waved through, and the shape is the
-  expensive thing to reverse.
-- **Parallel workstreams stop drifting.** Once the interface is merged, the
-  workstreams that build against it proceed at once without colliding, because
-  the thing they would have collided over is already fixed and shared.
+1. **Trigger:** any one of the three conditions in the 430 handbook, lines
+   134-138: several workstreams build against the same new interface at once,
+   the interface is built by two independent parties (different repos, teams, or
+   a provider and a consumer), or the data model is the decision whose reversal
+   reworks everything downstream. **Action:** create the interface workstream.
+2. **Trigger:** the feature is one workstream, or a few that share nothing.
+   **Action:** no interface workstream; build vertical slices.
+3. **Trigger:** nobody has implemented anything behind the interface yet.
+   **Action:** prototype, discard it, then write the interface from what the
+   prototype taught (430 handbook, line 140).
+4. **Trigger:** the interface is one function, or one struct with about three
+   fields. **Action:** put it in the first vertical slice.
+5. **Trigger:** none of rules 1-4 matches. **Action:** apply the counter-test at
+   line 140 of the 430 handbook: would a reviewer of the interface alone have
+   anything to argue with? If only one shape fits the problem, the reviewer has
+   nothing to argue with, and the interface goes into the first vertical slice
+   as in rule 4.
 
-Where a repo's own handbooks state this rule, they are authoritative and this
-skill only carries the how. In `edward`, that home is
-`docs/430-handbook-planning.lex` §10, with `440-handbook-epics.lex` §7 covering
-the cross-repo case.
+   Not yet decided: which rule applies when a struct of about three fields is
+   also the decision whose reversal reworks everything downstream.
 
-## When to mint an interface workstream
-
-Any one of these is enough:
-
-- **Several workstreams will build against the same new interface at once.**
-  Whatever they share is what they will conflict over and drift from. Fix it
-  first.
-- **The contact surface crosses a boundary** — repos, teams, or a
-  provider/consumer split where the two sides are built independently.
-- **The data model is the expensive decision in the feature.** If getting the
-  shape wrong means reworking everything downstream, buy the focused review.
-
-Do not mint one when:
-
-- The feature is one workstream, or a handful that barely touch each other.
-  There is nothing to synchronize, and you would be adding a review cycle to buy
-  a property you already have.
-- The shape is genuinely unknown. An interface reviewed before anyone has tried
-  to implement behind it is a guess with a merge commit. Prototype first, throw
-  the prototype away, then write the interface from what you learned.
-- The interface is small and obvious — one function, one struct with three
-  fields. Put it in the first vertical slice.
-
-The counter-test, applied honestly: **would a reviewer of this interface have
-anything to argue with?** If the shape is forced by the problem, there is no
-review to buy, and the workstream is ceremony.
+6. **Trigger:** the interface crosses repos. **Action:** classify the dependency
+   per the 440 handbook, section 7, lines 63-72. Sequencing (one side needs
+   something the other has shipped) only orders the workstreams. Integration
+   (new endpoints, data structures or message formats between the repos) has the
+   provider merge endpoints, types and schemas with no behavior behind them
+   before either side implements.
 
 ## Scoping the workstream
 
-**In scope:** data models, types, schemas, enums, error types. Public interfaces
-across every layer the feature touches — including the edge modules, so the
-layout is visible and named. Doc comments recording what each interface
-promises: invariants, ordering, error modes. Tests on the data models themselves
-— construction, defaults, serialization round-trips, validation.
+The interface workstream contains:
 
-**Out of scope:** all behavior. Every body that will eventually hold logic stays
-a stub.
+- Data types, schemas, enums and error types.
+- Public signatures for every module the feature touches, including the I/O
+  modules, so the file layout exists and is named.
+- Doc comments on each public type and signature stating its invariants,
+  ordering constraints and error modes (the codebase-design skill's definition
+  of interface).
+- Tests on the data types only: construction, defaults, serialization
+  round-trips, validation.
 
-**Acceptance criteria to write into the ticket:**
+It contains no behavior. Every function body that will later hold logic is a
+stub.
 
-- Compiles and type-checks; the existing suite still passes.
+The ticket's acceptance criteria:
+
+- The package compiles or type-checks and the existing test suite passes.
 - Every logic-bearing body raises a loud stub; none returns a silent default.
-- Data-model tests pass; no test asserts behavior that does not exist yet.
-- The PR description names the decisions worth arguing with now — the ones a
-  reviewer should push back on before anything is built against them.
+- Data-type tests pass; no test asserts behavior that does not exist.
+- The PR description lists the decisions a reviewer should push back on before
+  anything is built against them.
 
-**It is not a walking skeleton.** A skeleton is the thinnest _working_ thread
-end to end; an interface workstream is all the shapes with nothing working. They
-answer different questions — "is this the right shape" versus "is this wired
-together" — and an epic usually wants both answers. Take them in that order: the
-interface first, the skeleton as the first slice through it, then the parallel
-fan-out. That costs one serial cycle before the fan-out, and buys the shape
-review undivided.
+A walking skeleton is the thinnest working path end to end and answers "does one
+request pass through every module". An interface workstream is every type and
+signature with no body working and answers "is this the right shape". An epic
+that needs both answers takes the interface first, the skeleton as the first
+slice through it, then the remaining workstreams in parallel (430 handbook,
+lines 130-132).
+
+The `contract-phase` eval in `evals/evals.json` (lines 4-21) shows the scope for
+a feed digest: entry, per-feed group, digest and settings defined as types; the
+window and the per-feed cap passed in as configuration values, not read from the
+environment; every function that will hold logic raising `NotImplementedError`;
+no `httpx`, `open()`, `os.environ` or `datetime.now()` in the new modules.
 
 ## The rest of the graph
 
-Everything after the interface workstream stays a vertical slice: a narrow but
-complete path that replaces stubs across every layer it touches and is demoable
-on its own. Do not follow an interface workstream with a "core logic" workstream
-and an "I/O" workstream — that is a horizontal decomposition, and it defers
-every integration error to the end, which is the failure `440` §7 names.
+Each workstream after the interface is a vertical slice that replaces stubs in
+every module it touches and is demoable on its own. Line 142 of the 430 handbook
+refuses the alternative: "A core-logic workstream followed by an I/O workstream
+is a horizontal decomposition, and it defers every integration error to the
+end." Line 72 of the 440 handbook names the cross-repo form: all of the server,
+then all of the client, then integrate.
 
-The interface workstream buys the shared shape once. It does not license slicing
-the rest by layer.
+Not yet decided: whether a `contract-phase`, then a `core-phase` with `cli.py`
+and `config.py` stubbed, then an edges phase (the sequence `evals/evals.json`
+rewards) is the horizontal decomposition the 430 handbook's line 142 refuses.
 
 ## Implementing an interface workstream
 
-You will know how to implement the thing while you are stubbing it, and writing
-it costs almost nothing in the moment. That is the trap: it costs the review.
-Leave the stub.
+1. **Trigger:** the implementer knows how to write a body. **Action:** leave the
+   stub. A written body puts implementation into the diff the reviewer reads for
+   shape only.
+2. **Trigger:** a function will hold logic later. **Action:** give it a loud
+   stub.
 
-A stub must be impossible to mistake for working code:
+   | Language     | Loud stub                                   |
+   | ------------ | ------------------------------------------- |
+   | Rust         | `todo!()`                                   |
+   | Python       | `raise NotImplementedError`                 |
+   | TypeScript   | `throw new Error("not implemented")`        |
+   | Go           | `panic("not implemented")`                  |
+   | Java, Kotlin | `throw new UnsupportedOperationException()` |
 
-| Language    | Stub                                        |
-| ----------- | ------------------------------------------- |
-| Rust        | `todo!()`                                   |
-| Python      | `raise NotImplementedError`                 |
-| TypeScript  | `throw new Error("not implemented")`        |
-| Go          | `panic("not implemented")`                  |
-| Java/Kotlin | `throw new UnsupportedOperationException()` |
+3. **Trigger:** a body returns `nil`, `""`, `[]`, or is a bare `pass`.
+   **Action:** replace it with a loud stub. A silent default type-checks, passes
+   any test that does not assert on the value, and after merge reads as a bug
+   (`evals/evals.json` line 12 rejects it).
+4. **Trigger:** the implementer sees work that belongs to a later workstream.
+   **Action:** record it, either as a `TODO` comment beside the signature naming
+   that workstream or as a filed follow-up issue; do not do it.
+5. **Trigger:** the PR is about to open. **Action:** read the diff for any body
+   holding real logic and any call that performs I/O, and stub both.
 
-Never stub with a silent default — `return nil`, `return ""`, `return []`, a
-bare `pass`. A silent stub type-checks, survives any test that does not assert
-hard on the value, and merges looking finished. Later it reads as a bug rather
-than as unfinished work.
+## Core logic takes its inputs as arguments either way
 
-Work you notice that belongs to a later workstream gets recorded, not done: a
-`TODO(WSnn)` beside the signature, or a filed follow-up. Before opening the PR,
-read your own diff and ask whether any body contains real logic and whether
-anything performs I/O.
+1. **Trigger:** a function holds core logic, with or without an interface
+   workstream. **Action:** it takes everything it needs as arguments: no
+   environment variables, no filesystem, no network, no clock, no ambient state.
+   The edge modules (CLI, HTTP client, on-disk cache, config loader) construct
+   those values and pass them in. This is rule 1, "Accept dependencies, don't
+   create them", in the codebase-design skill.
+2. **Trigger:** a core function needs something from outside. **Action:** add a
+   parameter. A test of a function that calls `os.Getenv` or `open(path)` has to
+   set that variable or write that file before it runs. With a parameter, the
+   test passes the value directly.
 
-## The layering holds either way
-
-Whether or not the interface gets its own workstream, keep the layering inside
-whatever you build: **core logic takes everything it needs as arguments** — no
-environment variables, no filesystem, no network, no clock, no ambient state —
-and the edge modules construct those values and pass them in.
-
-This is the cheap half of the benefit and it costs nothing. It makes the core
-testable without mocks, and it means that if the feature later grows enough to
-need an interface workstream, the seam is already where it belongs.
-
-When a core function needs something from outside, add a parameter. Reaching for
-`os.Getenv` or `open(path)` mid-function is a two-second edit that costs the
-isolation everything else depends on.
+The `core-phase` eval in `evals/evals.json` (lines 22-38) shows the argument
+rule: `digest.py` reaches nothing outside its arguments and takes the current
+time from its `now` parameter, while `cli.py` and `config.py` touch the outside.
+If the feature later gets an interface workstream, the signatures it merges for
+`digest.py` are these parameter lists, and `cli.py` and `config.py` are the
+modules that call the outside.
 
 ## When the interface turns out to be wrong
 
-It will sometimes. Change it — but in one deliberate edit, and say so plainly in
-the PR, rather than working around it locally. An interface that mutates quietly
-while several workstreams are being built against it is the drift this whole
-move exists to prevent. Making the change visible is what lets the parallel work
-react to it.
-
-Two of these in the same epic is a signal, not bad luck: the interface was
-reviewed before it was understood. Say so, and consider whether the remaining
-workstreams should absorb the shape rather than a third revision.
+1. **Trigger:** the merged interface is wrong. **Action:** change it in one
+   edit, state the change in the PR description, and do not work around it
+   locally. Parallel workstreams can only adjust to a change they can see; an
+   edit that stays inside one workstream is the drift the move prevents.
+2. **Trigger:** the interface changes a second time in one epic. **Action:** say
+   in the PR that the review came before anyone understood the interface, and
+   consider having the remaining workstreams change the shape themselves instead
+   of a third revision.
 
 ---
 
-For the vocabulary of what makes an interface worth reviewing — depth, seams,
-leverage — see the `codebase-design` skill. For how workstreams are sized,
-published, and executed, see `to-tickets` and `440-handbook-epics.lex`. For
-building test-first inside a slice once the shapes exist, see `tdd` — the
-interface workstream splits review units, never the red-green cycle.
+The 430 handbook, section "10. Decomposition" (lines 128 and 146-148), sizes
+workstreams and orders their publication; the same repository's
+`docs/440-handbook-epics.lex` describes how a workstream is executed.
