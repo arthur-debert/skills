@@ -198,8 +198,10 @@ The agent keeps a recurring term when either holds:
   or the use glosses itself ("the rate allowance — the one subscription pool
   every session draws on").
 
-Not yet decided: whether a term the project's own CLI prints counts as a name
-(`dejargon/SKILL.md`, Boundaries) or must pass the decode test.
+A term the project's own CLI prints keeps the printed spelling, and each use
+says which thing it names at that site ("the `runtime` container", "the
+extracted runtime installation"): `dejargon/SKILL.md`, Boundaries, "clarify the
+prose around it". The decode test below still applies to the prose around it.
 
 **Decode test.** Trigger: a term that recurs across a document or corpus.
 Action: replace it at every site with what it concretely means there and count
