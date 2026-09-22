@@ -98,8 +98,9 @@ Ask each proposal to name:
 - splits considered but rejected.
 
 Compare the proposals against the code rather than voting by majority. Combine
-ideas only when the resulting ownership remains clear. If delegation is not
-available, perform the same analysis directly.
+ideas only when each resulting file still has a one-sentence responsibility and
+no file merely receives leftover code. If delegation is not available, perform
+the same analysis directly.
 
 The design is ready when every new file has a one-sentence responsibility, no
 new file merely receives leftover code, and the proposed dependency direction
