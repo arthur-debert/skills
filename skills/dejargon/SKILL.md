@@ -26,11 +26,15 @@ about as if they were the same thing.
 
 ## The rule
 
-Never introduce these words into anything you write. Instead, name the concrete
-thing the metaphor was standing in for. The test for every occurrence: **if this
-word were deleted, what specific noun or verb belongs in its place?** Write that
-instead. If your rewrite is not more concrete than the original — if you only
-swapped one vague word for another ("gate" → "blocker") — you haven't fixed it.
+A word from the list may stand in a sentence that already names the program,
+file or command and what it does; it may not stand in for them. "A check in the
+CI job runs the linter in case the local pre-commit hook skipped it; this gate
+..." names the job, the check and the hook, and "gate" is decoration. "Lint
+gates commits" names nothing a reader can open. The test for every occurrence:
+**delete the word; does the sentence still say which thing does what?** If yes,
+keep or drop the word. If no, write the specific noun or verb in its place. A
+rewrite that swaps one vague word for another ("gate" → "blocker") has fixed
+nothing.
 
 ## Tool, policy, enforcement — keep them separate
 

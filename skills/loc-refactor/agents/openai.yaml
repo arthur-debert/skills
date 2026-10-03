@@ -3,6 +3,7 @@ interface:
   short_description: "Split oversized files by cohesive responsibility"
   default_prompt:
     "Use $loc-refactor to inspect the requested scope with rustloc, compare
-    thematic split proposals, refactor the justified file-size hotspots without
-    changing behavior or public APIs, keep tests with the code they verify, and
-    report before-and-after LOC and verification results."
+    thematic split proposals, refactor the files over the size threshold that
+    meet one of the split conditions in SKILL.md without changing behavior or
+    public APIs, keep tests with the code they verify, and report
+    before-and-after LOC and verification results."
