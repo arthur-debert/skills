@@ -13,14 +13,15 @@ matches the `name` field in `SKILL.md`.
 
 ## Skills
 
-| Skill                                                    | What it does                                                                                                             |
-| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| [`dejargon`](skills/dejargon/SKILL.md)                   | Replace vague mechanical-metaphor jargon with the concrete actor, mechanism, and consequence.                            |
-| [`interface-first`](skills/interface-first/SKILL.md)     | Decide whether a feature's interface should land as its own workstream, and how to build one when it does.               |
-| [`loc-refactor`](skills/loc-refactor/SKILL.md)           | Split oversized source and test files into cohesive modules without changing behavior.                                   |
-| [`slop-clean`](skills/slop-clean/SKILL.md)               | Remove session sediment from persisted comments, docs, scripts, and config without changing executable behavior.         |
-| [`technical-drawing`](skills/technical-drawing/SKILL.md) | Model a part in FreeCAD and produce an ISO manufacturing drawing (views, section, dimensions, title block) plus renders. |
-| [`writing`](skills/writing/SKILL.md)                     | Write descriptions, not meta-analysis: actors, constraints, and consequences instead of verdicts about a design.         |
+| Skill                                                                    | What it does                                                                                                             |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| [`dejargon`](skills/dejargon/SKILL.md)                                   | Replace vague mechanical-metaphor jargon with the concrete actor, mechanism, and consequence.                            |
+| [`interface-first`](skills/interface-first/SKILL.md)                     | Decide whether a feature's interface should land as its own workstream, and how to build one when it does.               |
+| [`loc-refactor`](skills/loc-refactor/SKILL.md)                           | Split oversized source and test files into cohesive modules without changing behavior.                                   |
+| [`slop-clean`](skills/slop-clean/SKILL.md)                               | Remove session sediment from persisted comments, docs, scripts, and config without changing executable behavior.         |
+| [`technical-drawing`](skills/technical-drawing/SKILL.md)                 | Model a part in FreeCAD and produce an ISO manufacturing drawing (views, section, dimensions, title block) plus renders. |
+| [`testing-gravity-inversion`](skills/testing-gravity-inversion/SKILL.md) | Keep domain coverage at its owning layer and preserve the reasoning behind test placement.                               |
+| [`writing`](skills/writing/SKILL.md)                                     | Write descriptions, not meta-analysis: actors, constraints, and consequences instead of verdicts about a design.         |
 
 ## Install
 
